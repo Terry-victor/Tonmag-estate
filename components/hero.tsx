@@ -1,30 +1,37 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { X, Search } from "lucide-react"
+import { useState } from "react";
+import { X, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function Hero() {
-  const [showVideo, setShowVideo] = useState(false)
+  const [showVideo, setShowVideo] = useState(false);
+  const [query, setQuery] = useState("");
+  const router = useRouter();
+
+  const handleSearch = () => {
+    if (!query.trim()) return;
+    router.push(`/search?query=${encodeURIComponent(query)}`);
+  };
 
   return (
     <section className="relative w-full h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
-    <div
-  className="absolute inset-0 bg-cover bg-center"
-  style={{
-    backgroundImage: "url('/luxurious-villa-with-modern-architectural-design.png')",
-  }}
->
-  {/* Overlay Gradient */}
-  <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/80" />
-</div>
-
-
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('/luxurious-villa-with-modern-architectural-design.png')",
+        }}
+      >
+        {/* Overlay Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/80" />
+      </div>
 
       {/* Content */}
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          {/* Main Heading with Yellow Accents */}
+          {/* Main Heading */}
           <div className="space-y-4">
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light text-white leading-tight">
               Welcome to a New
@@ -46,17 +53,27 @@ export function Hero() {
             where the future of luxury is elegantly crafted today
           </p>
 
-          {/* Search Bar */}
+          {/* SEARCH BAR (ACTIVATED) */}
           <div className="flex items-center justify-center gap-4 pt-4">
-            <div className="flex items-center gap-2 text-gray-200">
-              <div className="w-6 h-6 flex items-center justify-center">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.5 1.5H9.5V3H8V1.5H7V3H5.5V1.5H4.5V3H3V1.5H2V3H1V19H19V3H18V1.5H17V3H15.5V1.5H14.5V3H13V1.5H12V3H10.5V1.5ZM17 17H3V5H17V17Z" />
-                </svg>
-              </div>
-              <span className="text-sm sm:text-base">Explore TONMAG homes</span>
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-3 rounded-xl border border-white/20">
+              <Search className="w-5 h-5 text-gray-200" />
+
+              <input
+                type="text"
+                placeholder="Search homes, locations..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch();
+                }}
+                className="bg-transparent outline-none text-white placeholder-gray-300 w-56 sm:w-72"
+              />
             </div>
-            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+
+            <button
+              onClick={handleSearch}
+              className="p-3 hover:bg-white/10 rounded-xl transition-colors"
+            >
               <Search className="w-5 h-5 text-gray-200" />
             </button>
           </div>
@@ -87,5 +104,5 @@ export function Hero() {
         </div>
       )}
     </section>
-  )
+  );
 }

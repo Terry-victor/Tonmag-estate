@@ -1,6 +1,6 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { CarouselProjects } from "@/components/carousel-projects"
+import { CarouselProjects, ProjectsList } from "@/components/carousel-projects"
 
 export default function ProjectsPage() {
   return (
@@ -24,7 +24,9 @@ export default function ProjectsPage() {
 
       {/* Carousel Section */}
       <section className="py-12 sm:py-16 md:py-20 bg-background">
-        <CarouselProjects />
+        {/* <CarouselProjects /> */}
+
+        < ProjectsList />
       </section>
 
       <Footer />
