@@ -77,12 +77,12 @@ export function About() {
           {/* Left Content */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-4xl sm:text-5xl font-bold mb-4">About Cosgrove</h2>
-              <p className="text-lg text-muted-foreground mb-4">
+              <h2 className="text-4xl sm:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>About Cosgrove</h2>
+              <p className="text-lg text-muted-foreground mb-4" style={{ fontFamily: 'var(--font-cormorant)', fontSize: '1.1rem', fontWeight: 400 }}>
                 We are pioneers in luxury real estate development, committed to creating exceptional living spaces that
                 blend innovation, sustainability, and timeless elegance.
               </p>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-muted-foreground" style={{ fontFamily: 'var(--font-cormorant)', fontSize: '1.1rem', fontWeight: 400 }}>
                 With over 15 years of industry experience, we've established ourselves as leaders in delivering premium
                 properties that exceed expectations and create lasting value for our clients.
               </p>

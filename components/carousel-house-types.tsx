@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface HouseType {
   id: string
@@ -102,9 +103,11 @@ export function CarouselHouseTypes() {
                       <h3 className="text-4xl font-bold mb-3">{card.name}</h3>
                       <p className="text-base mb-2 opacity-90">{card.description}</p>
                       <p className="text-lg font-semibold mb-6 text-amber-300">{card.price}</p>
-                      <Button className="w-full bg-white text-black hover:bg-gray-100 group-hover:translate-y-0 translate-y-2 transition-all duration-300 text-base py-6">
-                        View Project →
-                      </Button>
+                      <Link href={`/view-project/${card.id}`}>
+                        <Button className="w-full bg-white text-black hover:bg-gray-100 group-hover:translate-y-0 translate-y-2 transition-all duration-300 text-base py-6">
+                          View Project →
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -123,7 +126,9 @@ export function CarouselHouseTypes() {
                 <h3 className="text-3xl font-bold mb-2">{houseTypes[current].name}</h3>
                 <p className="text-base mb-2 opacity-90">{houseTypes[current].description}</p>
                 <p className="text-lg font-semibold mb-6 text-amber-300">{houseTypes[current].price}</p>
-                <Button className="w-full bg-white text-black hover:bg-gray-100 text-base py-6">View Project →</Button>
+                <Link href={`/view-project/${houseTypes[current].id}`}>
+                  <Button className="w-full bg-white text-black hover:bg-gray-100 text-base py-6">View Project →</Button>
+                </Link>
               </div>
             </div>
 

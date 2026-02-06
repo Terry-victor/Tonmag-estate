@@ -2,11 +2,19 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, Search } from "lucide-react"
+import { Menu, X, Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTheme } from "next-themes"
+import { useEffect } from "react"
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const navLinks = [
     { href: "/about", label: "About" },
@@ -44,9 +52,15 @@ export function Header() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            )}
             <Button className="hidden sm:inline-flex bg-primary hover:bg-primary/90">Book a Tour</Button>
 
             {/* Mobile Menu Button */}

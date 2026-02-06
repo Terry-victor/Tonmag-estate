@@ -32,11 +32,11 @@ export function Hero() {
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           {/* Main Heading */}
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in-up">
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light text-white leading-tight">
               Welcome to a New
               <br />
-              <span className="relative inline-block">
+              <span className="relative inline-block animate-calm-float" style={{ animationDelay: '0.3s' }}>
                 Era of
                 <span className="relative inline-block ml-3">
                   <span className="absolute -inset-2 sm:-inset-3 border-4 border-accent" />
@@ -47,7 +47,7 @@ export function Hero() {
           </div>
 
           {/* Subheading */}
-          <p className="text-base sm:text-lg text-gray-100 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-gray-100 max-w-2xl mx-auto leading-relaxed font-dancing text-xl" style={{ fontFamily: 'var(--font-dancing)' }}>
             Step into a realm of unparalleled grandeur,
             <br />
             where the future of luxury is elegantly crafted today
