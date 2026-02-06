@@ -37,7 +37,6 @@ const features = [
 
 export function EstateFeatures() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -48,12 +47,7 @@ export function EstateFeatures() {
   }, [])
 
   const handleMouseEnter = (index: number) => {
-    setHoveredIndex(index)
     setCurrentSlide(index)
-  }
-
-  const handleMouseLeave = () => {
-    setHoveredIndex(null)
   }
 
   return (
@@ -70,13 +64,10 @@ export function EstateFeatures() {
               <div
                 key={feature.id}
                 onMouseEnter={() => handleMouseEnter(index)}
-                onMouseLeave={handleMouseLeave}
                 className={`flex flex-col items-center text-center p-4 md:p-6 rounded-lg transition-all duration-500 cursor-pointer transform ${
                   index === currentSlide
                     ? "scale-110 bg-primary/20"
-                    : hoveredIndex !== null && hoveredIndex !== index
-                      ? "scale-75 opacity-40"
-                      : "scale-100 opacity-60"
+                    : "scale-75 opacity-40"
                 }`}
               >
                 <div
@@ -99,21 +90,6 @@ export function EstateFeatures() {
                   </p>
                 )}
               </div>
-            ))}
-          </div>
-
-          {/* Navigation Dots */}
-          <div className="flex justify-center gap-3 mb-12">
-            {features.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                onMouseEnter={() => handleMouseEnter(index)}
-                className={`w-3 h-3 rounded-full transition-all cursor-pointer ${
-                  index === currentSlide ? "bg-primary w-8" : "bg-gray-600 hover:bg-gray-500"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
             ))}
           </div>
 

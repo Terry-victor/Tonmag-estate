@@ -16,6 +16,7 @@ import {
   Download,
   ChevronRight,
 } from "lucide-react"
+import Image from "next/image"
 import { useState } from "react"
 
 export default function CredibilityLegalPage() {
@@ -23,28 +24,24 @@ export default function CredibilityLegalPage() {
 
   const certifications = [
     {
-      icon: Award,
       title: "ISO 9001:2015",
       description: "Quality Management System Certified",
-      color: "from-blue-500 to-cyan-500",
+      badgeImage: "/cert-iso-9001.jpg",
     },
     {
-      icon: Shield,
       title: "Real Estate Board Member",
       description: "Registered with National Real Estate Board",
-      color: "from-purple-500 to-pink-500",
+      badgeImage: "/cert-real-estate-board.jpg",
     },
     {
-      icon: CheckCircle,
       title: "Tax Compliant",
       description: "Fully registered and tax compliant with all authorities",
-      color: "from-green-500 to-emerald-500",
+      badgeImage: "/cert-tax-compliant.jpg",
     },
     {
-      icon: Lock,
       title: "Licensed Developer",
       description: "Licensed by State Urban Development Board",
-      color: "from-amber-500 to-orange-500",
+      badgeImage: "/cert-licensed-developer.jpg",
     },
   ]
 
@@ -135,13 +132,17 @@ export default function CredibilityLegalPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {certifications.map((cert, index) => {
-              const Icon = cert.icon
               return (
                 <div key={index} className="group transform transition-all duration-500 hover:scale-105">
                   <Card className="h-full overflow-hidden backdrop-blur-sm border-border hover:border-accent/50 transition-all duration-300 hover:shadow-xl">
-                    <div className={`bg-gradient-to-br ${cert.color} p-6 sm:p-8 text-white relative overflow-hidden`}>
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500" />
-                      <Icon className="w-10 h-10 sm:w-12 sm:h-12 mb-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 sm:p-8 text-white relative overflow-hidden h-32 flex items-center justify-center">
+                      <Image
+                        src={cert.badgeImage}
+                        alt={cert.title}
+                        width={120}
+                        height={120}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
                     </div>
                     <div className="p-6 sm:p-8">
                       <h3 className="text-lg sm:text-xl font-bold mb-2 group-hover:text-accent transition-colors">

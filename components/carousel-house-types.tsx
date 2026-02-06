@@ -57,7 +57,6 @@ const houseTypes: HouseType[] = [
 
 export function CarouselHouseTypes() {
   const [current, setCurrent] = useState(0)
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -68,12 +67,7 @@ export function CarouselHouseTypes() {
   }, [])
 
   const handleMouseEnter = (index: number) => {
-    setHoveredIndex(index)
     setCurrent(index)
-  }
-
-  const handleMouseLeave = () => {
-    setHoveredIndex(null)
   }
 
   return (
@@ -92,17 +86,16 @@ export function CarouselHouseTypes() {
         {/* Desktop Carousel */}
         <div className="hidden md:block">
           <div className="relative px-4">
-            <div className="flex gap-6 overflow-hidden">
+            <div className="flex gap-8 overflow-hidden">
               {houseTypes.map((card, idx) => (
                 <div
                   key={card.id}
                   onMouseEnter={() => handleMouseEnter(idx)}
-                  onMouseLeave={handleMouseLeave}
                   className={`flex-shrink-0 transition-all duration-500 transform cursor-pointer ${
-                    idx === current ? "w-full md:w-2/3" : "w-1/4 opacity-50 scale-90"
+                    idx === current ? "w-full md:w-3/4" : "w-1/5 opacity-50 scale-75"
                   }`}
                 >
-                  <div className="relative group rounded-3xl overflow-hidden h-[500px] shadow-2xl">
+                  <div className="relative group rounded-3xl overflow-hidden h-[650px] shadow-2xl">
                     <div className="absolute inset-0" style={{ background: card.image }} />
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
                     <div className="absolute inset-0 flex flex-col justify-end p-8 text-white">

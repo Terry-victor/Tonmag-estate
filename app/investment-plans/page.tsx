@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { TrendingUp, Shield, Zap, Award, DollarSign, Clock } from "lucide-react"
+import Image from "next/image"
 import { useState } from "react"
 
 export default function InvestmentPlansPage() {
@@ -18,6 +19,7 @@ export default function InvestmentPlansPage() {
       duration: "3 years",
       icon: TrendingUp,
       color: "from-blue-500 to-cyan-500",
+      badgeImage: "/badge-starter-plan.jpg",
       features: ["Guaranteed returns", "Professional management", "Quarterly reports", "Flexible withdrawal"],
     },
     {
@@ -27,6 +29,7 @@ export default function InvestmentPlansPage() {
       duration: "5 years",
       icon: Award,
       color: "from-amber-500 to-orange-500",
+      badgeImage: "/badge-premium-plan.jpg",
       features: ["Higher returns", "Priority support", "Monthly reports", "Property visits", "Tax benefits"],
       highlighted: true,
     },
@@ -37,6 +40,7 @@ export default function InvestmentPlansPage() {
       duration: "7 years",
       icon: Shield,
       color: "from-purple-500 to-pink-500",
+      badgeImage: "/badge-elite-plan.jpg",
       features: [
         "Maximum returns",
         "Dedicated manager",
@@ -120,13 +124,17 @@ export default function InvestmentPlansPage() {
                     <div className={`bg-gradient-to-r ${plan.color} p-6 sm:p-8 text-white relative overflow-hidden`}>
                       <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10" />
                       <div className="flex items-center gap-4 mb-4 relative z-10">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                          <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+                          <Image
+                            src={plan.badgeImage}
+                            alt={plan.name}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div>
-                          <div className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/90 text-gray-900 mb-1">
-                            {plan.name}
-                          </div>
+                          <div className="block text-sm font-bold text-white mb-1">{plan.name}</div>
                           {plan.highlighted && (
                             <div className="block text-xs font-semibold text-amber-200">Most Popular</div>
                           )}

@@ -49,22 +49,24 @@ export default function ContactPage() {
       {/* Contact Section */}
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {contactInfo.map((info, index) => {
-              const Icon = info.icon
-              return (
-                <div
-                  key={index}
-                  className="group bg-muted/50 rounded-xl p-8 text-center border border-border hover:border-accent/50 hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                >
-                  <div className="bg-accent/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-accent/20 transition-colors">
-                    <Icon className="w-8 h-8 text-accent" />
+          <div className="flex flex-col lg:flex-row gap-8 mb-16 items-stretch">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-4">
+              {contactInfo.map((info, index) => {
+                const Icon = info.icon
+                return (
+                  <div
+                    key={index}
+                    className="group bg-muted/50 rounded-xl p-6 text-center border border-border hover:border-accent/50 hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex flex-col items-center justify-start"
+                  >
+                    <div className="bg-accent/10 rounded-full w-16 h-16 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
+                      <Icon className="w-8 h-8 text-accent" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 group-hover:text-accent transition-colors">{info.title}</h3>
+                    <p className="text-muted-foreground group-hover:text-foreground transition-colors text-sm">{info.value}</p>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-accent transition-colors">{info.title}</h3>
-                  <p className="text-muted-foreground group-hover:text-foreground transition-colors">{info.value}</p>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
 
           {/* Contact Form */}
