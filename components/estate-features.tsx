@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
 
 const features = [
   {
@@ -38,31 +37,23 @@ const features = [
 
 export function EstateFeatures() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isAutoPlay, setIsAutoPlay] = useState(true)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!isAutoPlay) return
-
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % features.length)
-    }, 5000)
+    }, 6000)
 
     return () => clearInterval(interval)
-  }, [isAutoPlay])
+  }, [])
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % features.length)
-    setIsAutoPlay(false)
-  }
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + features.length) % features.length)
-    setIsAutoPlay(false)
-  }
-
-  const goToSlide = (index: number) => {
+  const handleMouseEnter = (index: number) => {
+    setHoveredIndex(index)
     setCurrentSlide(index)
-    setIsAutoPlay(false)
+  }
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null)
   }
 
   return (
@@ -73,59 +64,42 @@ export function EstateFeatures() {
 
         {/* Carousel Container */}
         <div className="relative">
-          {/* Features Display */}
-          <div className="flex items-center justify-center gap-8 mb-12">
-            {/* Left Arrow */}
-            <button
-              onClick={prevSlide}
-              className="hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 hover:bg-primary transition-colors"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="w-6 h-6 text-white" />
-            </button>
-
-            {/* Feature Cards */}
-            <div className="flex-1 overflow-hidden">
-              <div className="flex justify-center items-center gap-8">
-                {/* Previous Card (dimmed) */}
-                {features[(currentSlide - 1 + features.length) % features.length] && (
-                  <div className="hidden lg:flex flex-col items-center text-center opacity-40 w-32">
-                    <div className="text-5xl mb-4">
-                      {features[(currentSlide - 1 + features.length) % features.length].icon}
-                    </div>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {features[(currentSlide - 1 + features.length) % features.length].title}
-                    </h3>
-                  </div>
-                )}
-
-                {/* Current Card (highlighted) */}
-                <div className="flex flex-col items-center text-center w-full md:w-64">
-                  <div className="text-7xl mb-6 animate-bounce">{features[currentSlide].icon}</div>
-                  <h3 className="text-2xl font-bold text-foreground mb-3">{features[currentSlide].title}</h3>
-                  <p className="text-gray-400 text-sm">{features[currentSlide].description}</p>
+          {/* Feature Cards Display */}
+          <div className="flex items-center justify-center gap-4 md:gap-6 mb-12">
+            {features.map((feature, index) => (
+              <div
+                key={feature.id}
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={handleMouseLeave}
+                className={`flex flex-col items-center text-center p-4 md:p-6 rounded-lg transition-all duration-500 cursor-pointer transform ${
+                  index === currentSlide
+                    ? "scale-110 bg-primary/20"
+                    : hoveredIndex !== null && hoveredIndex !== index
+                      ? "scale-75 opacity-40"
+                      : "scale-100 opacity-60"
+                }`}
+              >
+                <div
+                  className={`transition-all duration-500 ${
+                    index === currentSlide ? "text-7xl animate-bounce" : "text-4xl"
+                  }`}
+                >
+                  {feature.icon}
                 </div>
-
-                {/* Next Card (dimmed) */}
-                {features[(currentSlide + 1) % features.length] && (
-                  <div className="hidden lg:flex flex-col items-center text-center opacity-40 w-32">
-                    <div className="text-5xl mb-4">{features[(currentSlide + 1) % features.length].icon}</div>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {features[(currentSlide + 1) % features.length].title}
-                    </h3>
-                  </div>
+                <h3
+                  className={`font-semibold text-foreground mt-3 transition-all duration-500 ${
+                    index === currentSlide ? "text-2xl" : "text-sm"
+                  }`}
+                >
+                  {feature.title}
+                </h3>
+                {index === currentSlide && (
+                  <p className="text-gray-400 text-sm mt-3 max-w-xs animate-in fade-in duration-300">
+                    {feature.description}
+                  </p>
                 )}
               </div>
-            </div>
-
-            {/* Right Arrow */}
-            <button
-              onClick={nextSlide}
-              className="hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 hover:bg-primary transition-colors"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="w-6 h-6 text-white" />
-            </button>
+            ))}
           </div>
 
           {/* Navigation Dots */}
@@ -133,9 +107,10 @@ export function EstateFeatures() {
             {features.map((_, index) => (
               <button
                 key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentSlide ? "bg-primary w-8" : "bg-gray-600"
+                onClick={() => setCurrentSlide(index)}
+                onMouseEnter={() => handleMouseEnter(index)}
+                className={`w-3 h-3 rounded-full transition-all cursor-pointer ${
+                  index === currentSlide ? "bg-primary w-8" : "bg-gray-600 hover:bg-gray-500"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />

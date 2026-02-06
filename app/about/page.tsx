@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Award, Users, Building2, Leaf, Users2, Trophy } from "lucide-react"
+import { CountUp } from "@/components/count-up"
 
 export default function AboutPage() {
   const values = [
@@ -70,9 +71,17 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* The TONMAG Way Section */}
-      <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* The TONMAG Way Section with Video Background */}
+      <section className="py-16 bg-background relative overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+        >
+          <source src="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_30fps.mp4" type="video/mp4" />
+        </video>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
             <div>
               <h2 className="text-4xl font-bold mb-6">The TONMAG Way</h2>
@@ -88,7 +97,7 @@ export default function AboutPage() {
                 obtainable anywhere in the world.
               </p>
             </div>
-            <div className="bg-primary/10 rounded-lg h-96" />
+            <div className="bg-primary/10 rounded-lg h-96 backdrop-blur-sm" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 mb-16">
@@ -109,15 +118,18 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Stats Section */}
+          {/* Stats Section with Animations */}
           <div className="grid md:grid-cols-4 gap-8">
             {stats.map((stat, index) => {
               const Icon = stat.icon
+              const numberStr = stat.number.replace(/\D/g, "")
+              const numberValue = parseInt(numberStr)
+              const suffix = stat.number.includes("+") ? "+" : ""
               return (
                 <div key={index} className="text-center">
                   <Icon className="w-12 h-12 text-accent mx-auto mb-4" />
-                  <p className="text-4xl font-bold text-accent mb-2">{stat.number}</p>
-                  <p className="text-muted-foreground">{stat.label}</p>
+                  <CountUp end={numberValue} duration={2500} suffix={suffix} />
+                  <p className="text-muted-foreground mt-2">{stat.label}</p>
                 </div>
               )
             })}

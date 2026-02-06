@@ -129,6 +129,27 @@ export function ProjectsShowcase() {
             <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
+
+        {/* YouTube Video Section */}
+        <div className="mt-20 pt-16 border-t border-gray-800">
+          <h3 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
+            Experience TONMAG in Action
+          </h3>
+          <div className="flex justify-center">
+            <div className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden shadow-2xl">
+              <iframe
+                width="100%"
+                height="100%"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="TONMAG Estate Features"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )

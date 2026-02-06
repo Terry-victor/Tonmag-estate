@@ -26,9 +26,17 @@ export default function ContactPage() {
     <main className="min-h-screen">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-primary/10 to-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section with Video Background */}
+      <section className="relative py-20 bg-gradient-to-b from-primary/10 to-background overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          className="absolute inset-0 w-full h-full object-cover opacity-15"
+        >
+          <source src="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_30fps.mp4" type="video/mp4" />
+        </video>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center space-y-6">
             <h1 className="text-5xl sm:text-6xl font-bold text-foreground">Contact Us</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -45,17 +53,22 @@ export default function ContactPage() {
             {contactInfo.map((info, index) => {
               const Icon = info.icon
               return (
-                <div key={index} className="text-center">
-                  <Icon className="w-12 h-12 text-accent mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">{info.title}</h3>
-                  <p className="text-muted-foreground">{info.value}</p>
+                <div
+                  key={index}
+                  className="group bg-muted/50 rounded-xl p-8 text-center border border-border hover:border-accent/50 hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
+                  <div className="bg-accent/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-accent/20 transition-colors">
+                    <Icon className="w-8 h-8 text-accent" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-accent transition-colors">{info.title}</h3>
+                  <p className="text-muted-foreground group-hover:text-foreground transition-colors">{info.value}</p>
                 </div>
               )
             })}
           </div>
 
           {/* Contact Form */}
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto bg-muted/30 rounded-2xl p-8 border border-border">
             <ContactForm />
           </div>
         </div>

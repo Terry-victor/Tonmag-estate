@@ -75,12 +75,16 @@ export default function InvestmentPlansPage() {
     <main className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero Section */}
+      {/* Hero Section with Video Background */}
       <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-primary/10 to-background overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-          <div className="absolute bottom-10 right-10 w-72 h-72 bg-primary rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        </div>
+        <video
+          autoPlay
+          muted
+          loop
+          className="absolute inset-0 w-full h-full object-cover opacity-15"
+        >
+          <source src="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_30fps.mp4" type="video/mp4" />
+        </video>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center space-y-4 sm:space-y-6">
@@ -112,16 +116,22 @@ export default function InvestmentPlansPage() {
                         : "border-border hover:border-accent/50 bg-card/50"
                     }`}
                   >
-                    {/* Header */}
+                    {/* Header with Image Badge */}
                     <div className={`bg-gradient-to-r ${plan.color} p-6 sm:p-8 text-white relative overflow-hidden`}>
                       <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10" />
-                      <Icon className="w-8 h-8 sm:w-10 sm:h-10 mb-4 relative z-10" />
-                      <h3 className="text-2xl sm:text-3xl font-bold mb-2 relative z-10">{plan.name}</h3>
-                      {plan.highlighted && (
-                        <div className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
-                          Most Popular
+                      <div className="flex items-center gap-4 mb-4 relative z-10">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                          <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
                         </div>
-                      )}
+                        <div>
+                          <div className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/90 text-gray-900 mb-1">
+                            {plan.name}
+                          </div>
+                          {plan.highlighted && (
+                            <div className="block text-xs font-semibold text-amber-200">Most Popular</div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Content */}
