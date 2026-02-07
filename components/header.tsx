@@ -8,18 +8,18 @@ import { useTheme } from "next-themes"
 import { useEffect } from "react"
 
 const houseTypes = [
-  { name: "Acacia", id: 1 },
-  { name: "Oakville", id: 2 },
-  { name: "Maple", id: 3 },
-  { name: "Pine", id: 4 },
-  { name: "Château", id: 5 },
-  { name: "Villa", id: 6 },
-  { name: "Oak", id: 7 },
-  { name: "Scarlet Oak", id: 8 },
-  { name: "Maple Penthouse", id: 9 },
-  { name: "Pine Penthouse", id: 10 },
-  { name: "Olive", id: 11 },
-  { name: "The Nouveau Villa", id: 12 },
+  { name: "Acacia", slug: "acacia" },
+  { name: "Oakville", slug: "oakville" },
+  { name: "Maple", slug: "maple" },
+  { name: "Pine", slug: "pine" },
+  { name: "Château", slug: "chateau" },
+  { name: "Villa", slug: "villa" },
+  { name: "Oak", slug: "oak" },
+  { name: "Scarlet Oak", slug: "scarlet-oak" },
+  { name: "Maple Penthouse", slug: "maple-penthouse" },
+  { name: "Pine Penthouse", slug: "pine-penthouse" },
+  { name: "Olive", slug: "olive" },
+  { name: "The Nouveau Villa", slug: "the-nouveau-villa" },
 ]
 
 export function Header() {
@@ -80,8 +80,8 @@ export function Header() {
                         <div className="grid grid-cols-2 gap-4">
                           {houseTypes.map((type) => (
                             <Link
-                              key={type.id}
-                              href={`/house-types/${type.id}`}
+                              key={type.slug}
+                              href={`/house-types/${type.slug}`}
                               className="text-sm text-muted-foreground hover:text-primary transition-colors py-2"
                             >
                               {type.name}
