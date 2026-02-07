@@ -2,6 +2,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Award, Users, Building2, Leaf, Users2, Trophy } from "lucide-react"
 import { CountUp } from "@/components/count-up"
+import { CurvedHeader } from "@/components/curved-header"
 
 export default function AboutPage() {
   const values = [
@@ -59,17 +60,12 @@ export default function AboutPage() {
     <main className="min-h-screen">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-primary/10 to-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-6">
-            <h1 className="text-5xl sm:text-6xl font-bold text-foreground">About TONMAG</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Leading the real estate industry with innovation, quality, and customer excellence
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Curved Header */}
+      <CurvedHeader
+        title="About TONMAG"
+        subtitle="Leading Excellence in Real Estate"
+        height="medium"
+      />
 
       {/* The TONMAG Way Section with Video Background */}
       <section className="py-16 bg-background relative overflow-hidden">

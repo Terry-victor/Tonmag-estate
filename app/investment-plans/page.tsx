@@ -6,10 +6,12 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { TrendingUp, Shield, Zap, Award, DollarSign, Clock } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useRef } from "react"
+import { CurvedHeader } from "@/components/curved-header"
 
 export default function InvestmentPlansPage() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const plans = [
     {
@@ -50,6 +52,26 @@ export default function InvestmentPlansPage() {
         "Estate planning",
       ],
     },
+    {
+      name: "Luxury Plan",
+      minInvestment: "₦100M+",
+      expectedReturn: "20-25%",
+      duration: "10 years",
+      icon: Zap,
+      color: "from-emerald-500 to-teal-500",
+      badgeImage: "/badge-luxury-plan.jpg",
+      features: ["Ultra-premium returns", "Exclusive access", "24/7 concierge", "Property ownership options"],
+    },
+    {
+      name: "Executive Plan",
+      minInvestment: "₦75M+",
+      expectedReturn: "19-23%",
+      duration: "8 years",
+      icon: DollarSign,
+      color: "from-slate-600 to-slate-800",
+      badgeImage: "/badge-executive-plan.jpg",
+      features: ["Executive benefits", "Quarterly strategy sessions", "Advanced tax planning", "Legacy planning"],
+    },
   ]
 
   const faqs = [
@@ -79,37 +101,37 @@ export default function InvestmentPlansPage() {
     <main className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero Section with Video Background */}
-      <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-primary/10 to-background overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          className="absolute inset-0 w-full h-full object-cover opacity-15"
-        >
-          <source src="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_30fps.mp4" type="video/mp4" />
-        </video>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center space-y-4 sm:space-y-6">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">Investment Plans</h1>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Grow your wealth with our proven real estate investment opportunities
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Curved Header */}
+      <CurvedHeader
+        title="Investment Plans"
+        subtitle="Grow your wealth with our proven real estate investment opportunities"
+        height="medium"
+      />
 
       {/* Investment Plans */}
       <section className="py-16 sm:py-20 md:py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-            {plans.map((plan, index) => {
+          <h2
+            className="text-4xl md:text-5xl font-bold mb-12 text-center"
+            style={{ fontFamily: "var(--font-playfair)" }}
+          >
+            Investment Opportunities
+          </h2>
+          <div
+            ref={scrollContainerRef}
+            className="overflow-x-auto pb-4 scrollbar-hide"
+            style={{
+              scrollBehavior: "smooth",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            <div className="flex gap-6 lg:gap-8 min-w-max">
+              {plans.map((plan, index) => {
               const Icon = plan.icon
               return (
                 <div
                   key={index}
-                  className={`transform transition-all duration-500 hover:scale-105 ${
+                  className={`flex-shrink-0 w-96 transform transition-all duration-500 hover:scale-105 ${
                     plan.highlighted ? "md:scale-105" : ""
                   }`}
                 >
@@ -196,6 +218,7 @@ export default function InvestmentPlansPage() {
                 </div>
               )
             })}
+            </div>
           </div>
         </div>
       </section>

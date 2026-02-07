@@ -2,14 +2,30 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, Moon, Sun } from "lucide-react"
+import { Menu, X, Moon, Sun, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
 import { useEffect } from "react"
 
+const houseTypes = [
+  { name: "Acacia", id: 1 },
+  { name: "Oakville", id: 2 },
+  { name: "Maple", id: 3 },
+  { name: "Pine", id: 4 },
+  { name: "Château", id: 5 },
+  { name: "Villa", id: 6 },
+  { name: "Oak", id: 7 },
+  { name: "Scarlet Oak", id: 8 },
+  { name: "Maple Penthouse", id: 9 },
+  { name: "Pine Penthouse", id: 10 },
+  { name: "Olive", id: 11 },
+  { name: "The Nouveau Villa", id: 12 },
+]
+
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
@@ -18,8 +34,8 @@ export function Header() {
 
   const navLinks = [
     { href: "/about", label: "About" },
-    { href: "/house-types", label: "House Types" },
-    { href: "/projects", label: "Projects" },
+    { href: "/house-types", label: "House Types", hasDropdown: true },
+    { href: "/projects", label: "Projects", hasDropdown: true },
     { href: "/investment-plans", label: "Investment Plans" },
     { href: "/credibility-legal", label: "Credibility & Legal" },
     { href: "/contact", label: "Contact" },
@@ -40,13 +56,64 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                {link.label}
-              </Link>
+              <div key={link.href} className="relative group">
+                <button
+                  className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
+                  onMouseEnter={() => link.hasDropdown && setOpenDropdown(link.label)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
+                  <Link href={link.href}>{link.label}</Link>
+                  {link.hasDropdown && <ChevronDown className="w-4 h-4" />}
+                </button>
+
+                {/* Desktop Dropdown */}
+                {link.hasDropdown && (
+                  <div
+                    className={`absolute left-0 top-full pt-2 hidden group-hover:block ${
+                      link.label === "House Types" ? "w-96" : "w-48"
+                    }`}
+                    onMouseEnter={() => setOpenDropdown(link.label)}
+                    onMouseLeave={() => setOpenDropdown(null)}
+                  >
+                    <div className="bg-background border border-border rounded-lg shadow-lg p-6">
+                      {link.label === "House Types" ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          {houseTypes.map((type) => (
+                            <Link
+                              key={type.id}
+                              href={`/house-types/${type.id}`}
+                              className="text-sm text-muted-foreground hover:text-primary transition-colors py-2"
+                            >
+                              {type.name}
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <Link
+                            href="/projects"
+                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2"
+                          >
+                            All Projects
+                          </Link>
+                          <Link
+                            href="/projects"
+                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2"
+                          >
+                            Ongoing Projects
+                          </Link>
+                          <Link
+                            href="/projects"
+                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2"
+                          >
+                            Completed Projects
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
 
@@ -61,7 +128,9 @@ export function Header() {
                 {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
             )}
-            <Button className="hidden sm:inline-flex bg-primary hover:bg-primary/90">Book a Tour</Button>
+            <Link href="/book-a-tour">
+              <Button className="hidden sm:inline-flex bg-primary hover:bg-primary/90">Book a Tour</Button>
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
@@ -86,7 +155,9 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            <Button className="w-full mt-4 bg-primary hover:bg-primary/90">Book a Tour</Button>
+            <Link href="/book-a-tour" className="w-full block mt-4">
+              <Button className="w-full bg-primary hover:bg-primary/90">Book a Tour</Button>
+            </Link>
           </nav>
         )}
       </div>
