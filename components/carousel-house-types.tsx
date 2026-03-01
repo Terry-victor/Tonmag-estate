@@ -86,17 +86,22 @@ export function CarouselHouseTypes() {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Desktop Carousel */}
         <div className="hidden md:block">
-          <div className="relative px-2">
-            <div className="flex gap-8 overflow-hidden justify-center">
+          <div className="relative overflow-hidden">
+            <div
+              className="flex gap-4 transition-transform duration-500 ease-out"
+              style={{
+                transform: `translateX(calc(50% - ${current * 220 + 350}px))`,
+              }}
+            >
               {houseTypes.map((card, idx) => (
                 <div
                   key={card.id}
                   onMouseEnter={() => handleMouseEnter(idx)}
-                  className={`shrink-0 transition-all duration-500 transform cursor-pointer 
-                    ${
-                    idx === current ? "w-full md:w-3/4" : "w-1/5 opacity-50 scale-75"
-                  }
-                    `}
+                  className={`shrink-0 transition-all duration-500 cursor-pointer ${
+                    idx === current
+                      ? "w-[700px] opacity-100 scale-100"
+                      : "w-[200px] opacity-50 scale-90"
+                  }`}
                 >
                   <div className="relative group rounded-3xl overflow-hidden h-[650px] shadow-2xl">
                     <div className="absolute inset-0" style={{ background: card.image }} />

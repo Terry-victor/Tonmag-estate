@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Heart, Share2, Eye } from "lucide-react";
+import { Heart, Share2, Eye, MapIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -70,7 +70,7 @@ export function HouseTypeDetailContent({
               onClick={() => setShowMap(true)}
               className="bg-white rounded-full p-3 hover:bg-gray-100 transition-colors"
             >
-              <Share2 className="w-5 h-5 text-black" />
+              <MapIcon className="w-5 h-5 text-black" />
             </button>
           </div>
 
