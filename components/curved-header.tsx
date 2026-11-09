@@ -37,7 +37,7 @@ export function CurvedHeader({
         alt={title}
         fill
         priority
-        className="object-cover"
+        className="header-image-kenburns object-cover"
       />
 
       {/* Soft cinematic overlay */}

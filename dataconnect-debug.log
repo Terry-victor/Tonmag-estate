@@ -1,0 +1,10 @@
+I1103 01:16:49.955635   17248 load.go:31] Reloading schema and connectors...
+I1103 01:16:50.684378   17248 control.go:92] [projects/emulator/locations/emulator/services/tonmag-estate 7c47] UpdateResources(): done
+Main schema: sources: schema/schema.gql [1992B] 
+Connector "example": sources: example/mutations.gql [1243B] example/queries.gql [1801B] 
+I1103 01:16:51.046719   17248 codegen.go:102] [connector "example" javascriptSdk] Generating sources into "C:\\Users\\HP\\Desktop\\TonMag\\Tonmag-estate\\src\\dataconnect-generated"
+I1103 01:16:51.656238   17248 codegen.go:102] [connector "example" adminSdk] Generating sources into "C:\\Users\\HP\\Desktop\\TonMag\\Tonmag-estate\\src\\dataconnect-admin-generated"
+I1103 01:16:51.898787   17248 collector.go:107] schema extensions wrote into "C:\\Users\\HP\\Desktop\\TonMag\\Tonmag-estate\\dataconnect\\.dataconnect\\schema"
+Generated sources: main\mutation.gql [13679B] main\implicit.gql [1261B] prelude.gql [94415B] main\input.gql [29309B] main\relation.gql [14318B] main\query.gql [5099B] 
+I1103 01:16:56.253813   17248 collector.go:107] connector "example" javascriptSdk wrote into "C:\\Users\\HP\\Desktop\\TonMag\\Tonmag-estate\\src\\dataconnect-generated"
+Generated sources: react\esm\package.json [17B] react\README.md [48281B] .guides/usage.md [3489B] .guides/setup.md [1682B] index.d.ts [8408B] esm\index.esm.js [5356B] react\esm\index.esm.js [3269B] index.cjs.js [5900B] react\index.cjs.js [3439B] esm\package.json [17B] package.json [853B] react\index.d.ts [3961B] react\package.json [460B] .guides/config.json [236B] README.md [41217B] 

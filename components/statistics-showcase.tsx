@@ -1,185 +1,34 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Building2, Building, Award, Users, Headphones, BookOpen } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { ArrowRight, FileCheck2, Globe2, KeyRound, Video } from "lucide-react"
+import { motion } from "framer-motion"
+import { CountUp } from "@/components/count-up"
+import { cardHover, fadeLeft, fadeUp, iconHover, staggerContainer, viewportOnce } from "@/lib/animations"
 
-interface StatItem {
-  icon: React.ComponentType<{ className?: string }>
-  number: number
-  suffix: string
-  label: string
-}
-
-const stats: StatItem[] = [
-  {
-    icon: Building2,
-    number: 1000,
-    suffix: "+",
-    label: "Homes Built",
-  },
-  {
-    icon: Building,
-    number: 10,
-    suffix: "+",
-    label: "Projects",
-  },
-  {
-    icon: Award,
-    number: 30,
-    suffix: "+",
-    label: "Awards",
-  },
-  {
-    icon: Users,
-    number: 1000,
-    suffix: "+",
-    label: "Global Clients",
-  },
+const steps = [
+  { icon: Globe2, number: "01", title: "Discover from anywhere", copy: "Compare verified homes in naira and your home currency, with a local adviser on hand." },
+  { icon: Video, number: "02", title: "Inspect in real time", copy: "Join a live, captioned walkthrough or appoint us to inspect against your brief." },
+  { icon: FileCheck2, number: "03", title: "Verify every document", copy: "See the named reviewer, title evidence, permit number, and transaction activity trail." },
+  { icon: KeyRound, number: "04", title: "Own with ongoing support", copy: "Track construction, maintenance, documents, and payments from your private workspace." },
 ]
-
-function CountUpNumber({ target, suffix }: { target: number; suffix: string }) {
-  const [count, setCount] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    const element = document.getElementById(`stat-number-${target}`)
-    if (element) {
-      observer.observe(element)
-    }
-
-    return () => {
-      if (element) observer.unobserve(element)
-    }
-  }, [target, isVisible])
-
-  useEffect(() => {
-    if (!isVisible) return
-
-    let start = 0
-    const increment = target / 60
-
-    const interval = setInterval(() => {
-      start += increment
-      if (start >= target) {
-        setCount(target)
-        clearInterval(interval)
-      } else {
-        setCount(Math.floor(start))
-      }
-    }, 30)
-
-    return () => clearInterval(interval)
-  }, [target, isVisible])
-
-  return (
-    <span id={`stat-number-${target}`}>
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  )
-}
 
 export function StatisticsShowcase() {
   return (
-    <section className="py-20 px-4 md:px-8 bg-background">
-      <div className="max-w-7xl mx-auto space-y-20">
-        {/* About Us Section */}
-        <div className="space-y-8">
-          <div className="text-center space-y-4 max-w-4xl mx-auto">
-            <h2 className="text-amber-500 text-lg font-medium">About Us</h2>
-            <h3 className="text-4xl md:text-6xl font-bold text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
-              We are Building the Future
-              <br />
-              of Africa's Real Estate
-            </h3>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <p className="text-lg text-muted-foreground leading-relaxed" style={{ fontFamily: 'var(--font-cormorant)' }}>
-              At Cosgrove, we don't just develop properties – we envision the future. As leaders in the real estate industry in Africa, we masterfully shape residential and commercial spaces that marry unparalleled luxury with cutting-edge technology.
-            </p>
-            <p className="text-lg text-muted-foreground leading-relaxed" style={{ fontFamily: 'var(--font-cormorant)' }}>
-              Our commitment to sustainability breathes life into each of our projects, creating environments that are as eco-conscious as they are exquisite. Here, we design the extraordinary. Here, we set the standard.
-            </p>
-          </div>
-        </div>
+    <section className="bg-card px-5 py-24 sm:px-8 lg:py-32">
+      <div className="mx-auto max-w-[1440px]">
+        <motion.div className="grid gap-10 lg:grid-cols-[.85fr_1.15fr] lg:gap-20" initial="hidden" whileInView="visible" viewport={viewportOnce} variants={staggerContainer}>
+          <motion.div variants={fadeLeft}><p className="luxury-eyebrow mb-4">The diaspora ownership path</p><h2 className="font-serif text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.95]">Distance, thoughtfully handled.</h2><p className="mt-7 max-w-lg leading-8 text-muted-foreground">From first shortlist to long-term care, every step has a named person, a visible record, and a clear next action.</p><Link href="/contact" className="mt-8 inline-flex min-h-12 items-center gap-2 bg-primary px-6 text-sm font-bold text-white">Talk to an agent <ArrowRight className="size-4" /></Link></motion.div>
+          <motion.div variants={staggerContainer} className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2">
+            {steps.map(({ icon: Icon, number, title, copy }) => <motion.article variants={fadeUp} whileHover={cardHover} key={title} className="bg-background p-7 sm:p-9"><div className="flex items-center justify-between"><motion.div whileHover={iconHover}><Icon className="size-6 text-primary" /></motion.div><span className="font-serif text-2xl text-muted-foreground/55">{number}</span></div><h3 className="mt-10 font-serif text-3xl leading-none">{title}</h3><p className="mt-4 text-sm leading-6 text-muted-foreground">{copy}</p></motion.article>)}
+          </motion.div>
+        </motion.div>
 
-        {/* Grid Layout for Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <div
-                key={index}
-                className="flex flex-col items-center text-center space-y-4 p-6 rounded-lg hover:bg-muted/50 transition-all duration-300"
-              >
-                {/* Icon */}
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Icon className="w-8 h-8 text-primary" />
-                </div>
-
-                {/* Number with Count Animation */}
-                <div className="text-5xl md:text-6xl font-bold text-primary" style={{ fontFamily: 'var(--font-playfair)' }}>
-                  <CountUpNumber target={stat.number} suffix={stat.suffix} />
-                </div>
-
-                {/* Label */}
-                <p className="text-base md:text-lg text-foreground font-medium" style={{ fontFamily: 'var(--font-cormorant)' }}>
-                  {stat.label}
-                </p>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* CTA Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Talk To Us */}
-          <div className="flex flex-col items-center text-center space-y-6 p-8 rounded-lg bg-muted/30">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-              <Headphones className="w-10 h-10 text-primary" />
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
-                Talk To Us
-              </h4>
-              <p className="text-muted-foreground" style={{ fontFamily: 'var(--font-cormorant)' }}>
-                Get started with Cosgrove by speaking to one of our experts.
-              </p>
-            </div>
-            <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-6 text-base">
-              Let's Talk
-            </Button>
-          </div>
-
-          {/* Project Brochures */}
-          <div className="flex flex-col items-center text-center space-y-6 p-8 rounded-lg bg-muted/30">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-10 h-10 text-primary" />
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
-                Project Brochures
-              </h4>
-              <p className="text-muted-foreground" style={{ fontFamily: 'var(--font-cormorant)' }}>
-                Explore our catalog through our collection of brochures.
-              </p>
-            </div>
-            <Button className="w-full bg-foreground hover:bg-foreground/90 text-background font-semibold py-6 text-base">
-              Download Brochures
-            </Button>
-          </div>
-        </div>
+        <motion.dl variants={staggerContainer} initial="hidden" whileInView="visible" viewport={viewportOnce} className="mt-20 grid border-y border-border py-9 sm:grid-cols-3">
+          <motion.div variants={fadeUp} className="p-4 text-center"><dt className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Document activity trail</dt><dd className="mt-2 font-serif"><CountUp end={100} duration={1200} suffix="%" /></dd></motion.div>
+          <motion.div variants={fadeUp} className="border-y border-border p-4 text-center sm:border-x sm:border-y-0"><dt className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Buyer home markets</dt><dd className="mt-2 font-serif"><CountUp end={18} duration={1300} /></dd></motion.div>
+          <motion.div variants={fadeUp} className="p-4 text-center"><dt className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dedicated local response</dt><dd className="mt-2 flex items-center justify-center font-serif"><span className="mr-1 text-4xl">&lt;</span><CountUp end={30} duration={1400} suffix=" min" /></dd></motion.div>
+        </motion.dl>
       </div>
     </section>
   )

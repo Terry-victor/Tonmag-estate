@@ -1,8 +1,9 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Award, Users, Building2, Leaf, Users2, Trophy } from "lucide-react"
-import { CountUp } from "@/components/count-up"
+import { Award, Users, Building2, Leaf } from "lucide-react"
 import { CurvedHeader } from "@/components/curved-header"
+import { Reveal } from "@/components/reveal"
+import { AboutStats } from "@/components/about-stats"
 
 export default function AboutPage() {
   const values = [
@@ -49,13 +50,6 @@ export default function AboutPage() {
     },
   ]
 
-  const stats = [
-    { number: "1,000+", label: "Homes Built", icon: Building2 },
-    { number: "10+", label: "Projects", icon: Award },
-    { number: "30+", label: "Awards", icon: Trophy },
-    { number: "1,000+", label: "Global Clients", icon: Users2 },
-  ]
-
   return (
     <main className="min-h-screen">
       <Header />
@@ -70,14 +64,7 @@ export default function AboutPage() {
 
       {/* The TONMAG Way Section with Video Background */}
       <section className="py-16 bg-background relative overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
-        >
-          <source src="oport estate_1.mp4" type="video/mp4" />
-        </video>
+        <div className="absolute inset-0 bg-[url('/NICE.JPG')] bg-cover bg-center opacity-10" aria-hidden="true" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
             <div>
@@ -123,21 +110,7 @@ export default function AboutPage() {
           </div>
 
           {/* Stats Section with Animations */}
-          <div className="grid md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              const numberStr = stat.number.replace(/\D/g, "");
-              const numberValue = parseInt(numberStr);
-              const suffix = stat.number.includes("+") ? "+" : "";
-              return (
-                <div key={index} className="text-center">
-                  <Icon className="w-12 h-12 text-accent mx-auto mb-4" />
-                  <CountUp end={numberValue} duration={2500} suffix={suffix} />
-                  <p className="text-muted-foreground mt-2">{stat.label}</p>
-                </div>
-              );
-            })}
-          </div>
+          <Reveal><AboutStats /></Reveal>
         </div>
       </section>
 
@@ -146,7 +119,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-16">
             <p className="text-accent font-semibold mb-2">The Core Team</p>
-            <h2 className="text-5xl font-bold mb-8">
+            <h2 className="mb-8 text-[clamp(2.8rem,6vw,4.5rem)] font-bold">
               Meet the Minds Behind TONMAG
             </h2>
           </div>
@@ -162,7 +135,7 @@ export default function AboutPage() {
                   <img
                     src={member.image || "/placeholder.svg"}
                     alt={member.name}
-                    className="w-full h-96 object-cover rounded-lg"
+                    className="aspect-[4/5] w-full rounded-2xl object-cover"
                   />
                 </div>
                 <div className={index % 2 === 1 ? "md:col-start-1" : ""}>

@@ -1,166 +1,87 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Menu, X, Moon, Sun, ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Menu, Moon, Sun, X } from "lucide-react"
 import { useTheme } from "next-themes"
-import { useEffect } from "react"
+import { usePathname } from "next/navigation"
+import { AccountMenu } from "@/components/account-menu"
 
-const houseTypes = [
-  { name: "Acacia", slug: "acacia" },
-  { name: "Oakville", slug: "oakville" },
-  { name: "Maple", slug: "maple" },
-  { name: "Pine", slug: "pine" },
-  { name: "Château", slug: "chateau" },
-  { name: "Villa", slug: "villa" },
-  { name: "Oak", slug: "oak" },
-  { name: "Scarlet Oak", slug: "scarlet-oak" },
-  { name: "Maple Penthouse", slug: "maple-penthouse" },
-  { name: "Pine Penthouse", slug: "pine-penthouse" },
-  { name: "Olive", slug: "olive" },
-  { name: "The Nouveau Villa", slug: "the-nouveau-villa" },
+const navigation = [
+  { href: "/projects", label: "Properties" },
+  { href: "/investment-plans", label: "Invest" },
+  { href: "/credibility-legal", label: "Verification" },
+  { href: "/about", label: "About" },
 ]
 
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
-  const { theme, setTheme } = useTheme()
+  const [scrolled, setScrolled] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+  const pathname = usePathname()
 
+  useEffect(() => setMounted(true), [])
   useEffect(() => {
-    setMounted(true)
+    const update = () => setScrolled(window.scrollY > 56)
+    update()
+    window.addEventListener("scroll", update, { passive: true })
+    return () => window.removeEventListener("scroll", update)
   }, [])
-
-  const navLinks = [
-    { href: "/about", label: "About" },
-    { href: "/house-types", label: "House Types", hasDropdown: true },
-    { href: "/projects", label: "Projects", hasDropdown: true },
-    { href: "/investment-plans", label: "Investment Plans" },
-    { href: "/credibility-legal", label: "Credibility & Legal" },
-    { href: "/contact", label: "Contact" },
-  ]
+  useEffect(() => setOpen(false), [pathname])
+  const overHero = pathname === "/" && !scrolled
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">T</span>
-            </div>
-            <span className="font-bold text-xl hidden sm:inline">TONMAG</span>
-          </Link>
+    <header className={`${pathname === "/" ? "fixed inset-x-0" : "sticky"} top-0 z-50 transition-colors duration-300 ${overHero ? "border-b border-white/10 bg-black/10 text-white backdrop-blur-md" : "border-b border-border/80 bg-background/95 text-foreground backdrop-blur-xl"}`}>
+      <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 sm:px-8">
+        <Link href="/" className="flex min-h-12 items-center gap-3" aria-label="TONMAG home">
+          <span className="grid size-10 place-items-center border border-primary bg-navy font-serif text-2xl text-white">T</span>
+          <span className="leading-none">
+            <span className="block text-base font-extrabold tracking-[0.16em]">TONMAG</span>
+            <span className={`mt-1 block text-[0.58rem] font-semibold uppercase tracking-[0.25em] ${overHero ? "text-white/65" : "text-muted-foreground"}`}>Homes · Nigeria</span>
+          </span>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <div key={link.href} className="relative group">
-                <button
-                  className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
-                  onMouseEnter={() => link.hasDropdown && setOpenDropdown(link.label)}
-                  onMouseLeave={() => setOpenDropdown(null)}
-                >
-                  <Link href={link.href}>{link.label}</Link>
-                  {link.hasDropdown && <ChevronDown className="w-4 h-4" />}
-                </button>
-
-                {/* Desktop Dropdown */}
-                {link.hasDropdown && (
-                  <div
-                    className={`absolute left-0 top-full pt-2 hidden group-hover:block ${
-                      link.label === "House Types" ? "w-96" : "w-48"
-                    }`}
-                    onMouseEnter={() => setOpenDropdown(link.label)}
-                    onMouseLeave={() => setOpenDropdown(null)}
-                  >
-                    <div className="bg-background border border-border rounded-lg shadow-lg p-6">
-                      {link.label === "House Types" ? (
-                        <div className="grid grid-cols-2 gap-4">
-                          {houseTypes.map((type) => (
-                            <Link
-                              key={type.slug}
-                              href={`/house-types/${type.slug}`}
-                              className="text-sm text-muted-foreground hover:text-primary transition-colors py-2"
-                            >
-                              {type.name}
-                            </Link>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <Link
-                            href="/projects"
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2"
-                          >
-                            All Projects
-                          </Link>
-                          <Link
-                            href="/projects"
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2"
-                          >
-                            Ongoing Projects
-                          </Link>
-                          <Link
-                            href="/projects"
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2"
-                          >
-                            Completed Projects
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-4">
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 hover:bg-muted rounded-lg transition-colors"
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-            )}
-            <Link href="/book-a-tour">
-              <Button className="hidden sm:inline-flex bg-primary hover:bg-primary/90">Book a Tour</Button>
-            </Link>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <nav className="lg:hidden pb-4 space-y-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="block px-4 py-2 hover:bg-muted rounded-lg transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                {link.label}
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary navigation">
+          {navigation.map((item) => (
+            <div key={item.href} className="group relative">
+              <Link href={item.href} className={`flex min-h-12 items-center gap-1 text-sm font-semibold transition hover:text-primary ${overHero ? "text-white/85" : "text-foreground/80"}`}>
+                {item.label}
               </Link>
-            ))}
-            <Link href="/book-a-tour" className="w-full block mt-4">
-              <Button className="w-full bg-primary hover:bg-primary/90">Book a Tour</Button>
-            </Link>
-          </nav>
-        )}
+            </div>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2">
+          {mounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className={`grid size-12 place-items-center rounded-full hover:bg-muted/30 ${overHero ? "text-white" : "text-foreground"}`}
+              aria-label={`Use ${resolvedTheme === "dark" ? "light" : "dark"} theme`}
+            >
+              {resolvedTheme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+            </button>
+          )}
+          <AccountMenu />
+          <Link href="/book-a-tour" className="hidden min-h-12 items-center bg-primary px-5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 sm:flex">Request inspection</Link>
+          <button type="button" onClick={() => setOpen(!open)} className="grid size-12 place-items-center lg:hidden" aria-expanded={open} aria-controls="mobile-navigation" aria-label="Toggle navigation">
+            {open ? <X /> : <Menu />}
+          </button>
+        </div>
       </div>
+
+      {open && (
+        <nav id="mobile-navigation" className="border-t border-border bg-card px-5 py-5 lg:hidden" aria-label="Mobile navigation">
+          <div className="mx-auto max-w-[1440px] space-y-1">
+            {navigation.map((item) => (
+              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="flex min-h-12 items-center border-b border-border/70 py-2 font-semibold">{item.label}</Link>
+            ))}
+            <AccountMenu mobile closeMenu={() => setOpen(false)} />
+            <Link href="/book-a-tour" onClick={() => setOpen(false)} className="mt-4 flex min-h-12 items-center justify-center bg-primary px-5 font-bold text-primary-foreground">Request inspection</Link>
+          </div>
+        </nav>
+      )}
     </header>
   )
 }

@@ -14,35 +14,40 @@ import {
   TrendingUp,
   Users,
   Download,
+  Eye,
   ChevronRight,
 } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { CurvedHeader } from "@/components/curved-header";
+import { motion } from "framer-motion"
+import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export default function CredibilityLegalPage() {
   const [expandedDoc, setExpandedDoc] = useState<number | null>(null)
+  const [previewDoc, setPreviewDoc] = useState<number | null>(null)
 
   const certifications = [
     {
       title: "ISO 9001:2015",
       description: "Quality Management System Certified",
-      badgeImage: "/cert-iso-9001.jpg",
+      badgeImage: "/M1.JPG",
     },
     {
       title: "Real Estate Board Member",
       description: "Registered with National Real Estate Board",
-      badgeImage: "/cert-real-estate-board.jpg",
+      badgeImage: "/M2.JPG",
     },
     {
       title: "Tax Compliant",
       description: "Fully registered and tax compliant with all authorities",
-      badgeImage: "/cert-tax-compliant.jpg",
+      badgeImage: "/M4.JPG",
     },
     {
       title: "Licensed Developer",
       description: "Licensed by State Urban Development Board",
-      badgeImage: "/cert-licensed-developer.jpg",
+      badgeImage: "/M6.JPG",
     },
   ]
 
@@ -51,21 +56,25 @@ export default function CredibilityLegalPage() {
       title: "Terms of Service",
       description: "Our terms and conditions for all services",
       icon: FileText,
+      url: process.env.NEXT_PUBLIC_TERMS_PDF_URL || "",
     },
     {
       title: "Privacy Policy",
       description: "How we protect your personal information",
       icon: Lock,
+      url: process.env.NEXT_PUBLIC_PRIVACY_PDF_URL || "",
     },
     {
       title: "Investment Agreement",
       description: "Standard investment contract template",
       icon: CheckCircle,
+      url: process.env.NEXT_PUBLIC_INVESTMENT_AGREEMENT_PDF_URL || "",
     },
     {
       title: "Property Purchase Agreement",
       description: "Standard property purchase terms",
       icon: FileText,
+      url: process.env.NEXT_PUBLIC_PURCHASE_AGREEMENT_PDF_URL || "",
     },
   ]
 
@@ -109,14 +118,7 @@ export default function CredibilityLegalPage() {
 
       {/* The TONMAG Way Section with Video Background */}
       <section className="py-16 bg-background relative overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
-        >
-          <source src="oport estate_1.mp4" type="video/mp4" />
-        </video>
+        <div className="absolute inset-0 bg-[url('/NICE.JPG')] bg-cover bg-center opacity-10" aria-hidden="true" />
 
         {/* Hero Section with Video Background */}
         <section className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-primary/10 to-background overflow-hidden">
@@ -156,10 +158,10 @@ export default function CredibilityLegalPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={viewportOnce} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {certifications.map((cert, index) => {
                 return (
-                  <div
+                  <motion.div variants={fadeUp}
                     key={index}
                     className="group transform transition-all duration-500 hover:scale-105"
                   >
@@ -182,10 +184,10 @@ export default function CredibilityLegalPage() {
                         </p>
                       </div>
                     </Card>
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -242,10 +244,9 @@ export default function CredibilityLegalPage() {
                             This document contains important legal information.
                             Please read carefully before proceeding.
                           </p>
-                          <Button className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-white">
-                            <Download className="w-4 h-4 mr-2" />
-                            Download PDF
-                          </Button>
+                          <div className="flex flex-col gap-2 sm:flex-row"><Button variant="outline" onClick={() => setPreviewDoc(idx)} className="w-full sm:w-auto"><Eye className="mr-2 size-4" />View</Button><Button asChild={Boolean(doc.url)} disabled={!doc.url} className="w-full bg-accent text-white hover:bg-accent/90 sm:w-auto">
+                            {doc.url ? <a href={doc.url} download><Download className="mr-2 size-4" />Download PDF</a> : <span><Download className="mr-2 size-4" />PDF pending</span>}
+                          </Button></div>
                         </div>
                       )}
                     </Card>
@@ -300,6 +301,16 @@ export default function CredibilityLegalPage() {
           </div>
         </section>
       </section>
+
+      <Dialog open={previewDoc !== null} onOpenChange={(open) => !open && setPreviewDoc(null)}>
+        <DialogContent className="max-h-[90dvh] max-w-4xl overflow-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-3xl">{previewDoc !== null ? documents[previewDoc].title : "Document preview"}</DialogTitle>
+            <DialogDescription>{previewDoc !== null ? documents[previewDoc].description : ""}</DialogDescription>
+          </DialogHeader>
+          {previewDoc !== null && documents[previewDoc].url ? <iframe title={`${documents[previewDoc].title} preview`} src={documents[previewDoc].url} className="h-[65dvh] w-full rounded-xl border border-border" /> : <div className="grid min-h-64 place-items-center rounded-xl bg-muted p-8 text-center text-sm text-muted-foreground">The official PDF URL has not been configured yet. The document can be previewed here as soon as its Firebase CDN URL is added.</div>}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </main>

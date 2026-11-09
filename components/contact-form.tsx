@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { MessageCircle, Phone, Mail, MapPin } from "lucide-react"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { motion } from "framer-motion"
+import { fadeLeft, fadeUp, staggerContainer, viewportOnce } from "@/lib/animations"
 
 export function ContactForm() {
   const [formData, setFormData] = useState({
@@ -32,13 +32,15 @@ export function ContactForm() {
     setError("")
 
     try {
-      await addDoc(collection(db, "contact_submissions"), {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message,
-        timestamp: serverTimestamp(),
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       })
+      if (!response.ok) {
+        const result = await response.json().catch(() => null)
+        throw new Error(result?.error || "Unable to submit enquiry.")
+      }
 
       setSubmitted(true)
       setFormData({ name: "", email: "", phone: "", message: "" })
@@ -54,18 +56,18 @@ export function ContactForm() {
   }
 
   return (
-    <section id="contact" className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-4">Get In Touch</h2>
+    <section id="contact" className="bg-[#f0ece3] px-4 py-20 sm:px-8 lg:py-28 dark:bg-background">
+      <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={viewportOnce} className="mx-auto max-w-[1280px]">
+        <motion.div variants={fadeUp} className="mb-14 text-center">
+          <p className="luxury-eyebrow mb-3">Start a conversation</p><h2 className="mb-4 font-serif text-[clamp(3rem,7vw,5rem)] leading-none">Get in touch</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-8">
           {/* Contact Info */}
-          <div className="space-y-6">
+          <motion.div variants={fadeLeft} className="grid gap-4 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1">
             <Card className="p-6">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -122,11 +124,11 @@ export function ContactForm() {
                 </div>
               </div>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <Card className="p-8">
+          <motion.div variants={fadeUp} className="lg:col-span-3">
+            <Card className="rounded-2xl border-border bg-card p-5 shadow-[0_24px_70px_rgba(8,25,39,.08)] sm:p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium mb-2">Full Name</label>
@@ -183,9 +185,9 @@ export function ContactForm() {
                 </Button>
               </form>
             </Card>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }

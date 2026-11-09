@@ -1,0 +1,3 @@
+overrides:
+  dataconnect-admin-generated: link:../../../AppData/Local/pnpm/global/5/node_modules/src/dataconnect-admin-generated
+  dataconnect-generated: link:../../../AppData/Local/pnpm/global/5/node_modules/src/dataconnect-generated

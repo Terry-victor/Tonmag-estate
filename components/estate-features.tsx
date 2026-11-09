@@ -1,104 +1,19 @@
-"use client"
-
-import { useState, useEffect } from "react"
+import { BatteryCharging, Cctv, Droplets, Smartphone, Trees } from "lucide-react"
 
 const features = [
-  {
-    id: 1,
-    icon: "🔐",
-    title: "Facial Recognition",
-    description: "Advanced biometric security for seamless access control",
-  },
-  {
-    id: 2,
-    icon: "📡",
-    title: "Motion Sensors",
-    description: "Intelligent motion detection for enhanced safety",
-  },
-  {
-    id: 3,
-    icon: "🚨",
-    title: "Security Alarm",
-    description: "Real-time alert system for immediate response",
-  },
-  {
-    id: 4,
-    icon: "💡",
-    title: "Smart Lighting",
-    description: "Automated lighting control for energy efficiency",
-  },
-  {
-    id: 5,
-    icon: "🌡️",
-    title: "Climate Control",
-    description: "Intelligent temperature management system",
-  },
+  { icon: Cctv, title: "Layered security", text: "Controlled access, CCTV, and professional estate response." },
+  { icon: BatteryCharging, title: "Resilient power", text: "Grid, backup, and solar-ready energy designed for daily life." },
+  { icon: Droplets, title: "Treated water", text: "Reliable supply with managed treatment and storage systems." },
+  { icon: Smartphone, title: "Remote access", text: "Monitor updates and request assistance from your dashboard." },
+  { icon: Trees, title: "Considered landscape", text: "Generous planting, shade, and calm shared outdoor spaces." },
 ]
 
 export function EstateFeatures() {
-  const [currentSlide, setCurrentSlide] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % features.length)
-    }, 6000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleMouseEnter = (index: number) => {
-    setCurrentSlide(index)
-  }
-
   return (
-    <section className="bg-background py-20 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Heading */}
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-primary mb-16">Estate Features</h2>
-
-        {/* Carousel Container */}
-        <div className="relative">
-          {/* Feature Cards Display */}
-          <div className="flex items-center justify-center gap-4 md:gap-6 mb-12">
-            {features.map((feature, index) => (
-              <div
-                key={feature.id}
-                onMouseEnter={() => handleMouseEnter(index)}
-                className={`flex flex-col items-center text-center p-4 md:p-6 rounded-lg transition-all duration-500 cursor-pointer transform ${
-                  index === currentSlide
-                    ? "scale-110 bg-primary/20"
-                    : "scale-75 opacity-40"
-                }`}
-              >
-                <div
-                  className={`transition-all duration-500 ${
-                    index === currentSlide ? "text-7xl animate-bounce" : "text-4xl"
-                  }`}
-                >
-                  {feature.icon}
-                </div>
-                <h3
-                  className={`font-semibold text-foreground mt-3 transition-all duration-500 ${
-                    index === currentSlide ? "text-2xl" : "text-sm"
-                  }`}
-                >
-                  {feature.title}
-                </h3>
-                {index === currentSlide && (
-                  <p className="text-gray-400 text-sm mt-3 max-w-xs animate-in fade-in duration-300">
-                    {feature.description}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Quote Section */}
-          <div className="text-center border-t border-gray-700 pt-12">
-            <p className="text-xl text-foreground mb-4 italic">"We will never stop delivering the highest quality."</p>
-            <p className="text-primary font-script text-2xl">-The TONMAG Team.</p>
-          </div>
-        </div>
+    <section className="bg-navy px-5 py-24 text-white sm:px-8 lg:py-32">
+      <div className="mx-auto max-w-[1440px]">
+        <div className="max-w-3xl"><p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-[#e4bd79]">Made for dependable living</p><h2 className="font-serif text-5xl leading-none sm:text-7xl">Luxury is what works, quietly.</h2></div>
+        <div className="mt-14 grid gap-px overflow-hidden border border-white/15 bg-white/15 sm:grid-cols-2 lg:grid-cols-5">{features.map(({ icon: Icon, title, text }) => <article key={title} className="bg-navy p-7"><Icon className="size-6 text-[#e4bd79]" /><h3 className="mt-12 font-serif text-2xl leading-none">{title}</h3><p className="mt-4 text-sm leading-6 text-white/60">{text}</p></article>)}</div>
       </div>
     </section>
   )

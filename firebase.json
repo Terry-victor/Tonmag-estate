@@ -1,0 +1,42 @@
+{
+  "auth": {
+    "providers": {
+      "anonymous": false,
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "TonMag Estate",
+        "supportEmail": "victorterry25@gmail.com",
+        "authorizedRedirectUris": [
+          "https://tonmag-estate-prod.firebaseapp.com/__/auth/handler",
+          "http://localhost"
+        ]
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "dataconnect": {
+      "dataDir": "dataconnect/.dataconnect/pgliteData"
+    }
+  },
+  "dataconnect": {
+    "source": "dataconnect"
+  },
+  "apphosting": {
+    "backendId": "tonmag-estate-web",
+    "rootDir": "/",
+    "ignore": [
+      "node_modules",
+      ".git",
+      ".next",
+      ".vercel",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  }
+}

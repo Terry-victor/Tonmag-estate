@@ -3,8 +3,8 @@
 import { houseTypesData } from '@/lib/house-types-data'
 
 interface TemplateSelectorProps {
-  selectedId: string
-  onSelect: (id: string) => void
+  selectedId: number
+  onSelect: (id: number) => void
 }
 
 export function TemplateSelector({ selectedId, onSelect }: TemplateSelectorProps) {
@@ -16,7 +16,7 @@ export function TemplateSelector({ selectedId, onSelect }: TemplateSelectorProps
       <select
         id="template-select"
         value={selectedId}
-        onChange={(e) => onSelect(e.target.value)}
+        onChange={(e) => onSelect(Number(e.target.value))}
         className="px-4 py-2 rounded-lg border border-border bg-background text-foreground hover:border-primary transition-colors cursor-pointer"
       >
         {houseTypesData.map((template) => (

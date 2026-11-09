@@ -1,77 +1,19 @@
-"use client"
-
 import Image from "next/image"
-import { PenTool, Zap, Hammer, LayoutGrid } from "lucide-react"
+import { ClipboardCheck, FileSearch, Hammer, HousePlug } from "lucide-react"
 
 const services = [
-  {
-    icon: PenTool,
-    title: "Consultation",
-  },
-  {
-    icon: Zap,
-    title: "Design & Automation",
-  },
-  {
-    icon: Hammer,
-    title: "Construction",
-  },
-  {
-    icon: LayoutGrid,
-    title: "Project Management",
-  },
+  { icon: FileSearch, title: "Title & permit verification", copy: "Named legal review with dated evidence." },
+  { icon: ClipboardCheck, title: "Remote property inspections", copy: "Live video, written findings, and captions." },
+  { icon: Hammer, title: "Construction oversight", copy: "Milestone reports, site media, and approvals." },
+  { icon: HousePlug, title: "Property management", copy: "Tenancy, maintenance, and local representation." },
 ]
 
 export function ServicesSection() {
   return (
-    <section className="py-20 px-4 md:px-8 bg-background">
-      <div className="max-w-7xl mx-auto space-y-16">
-        {/* Header */}
-        <div className="space-y-6 max-w-3xl">
-          <h2 className="text-amber-500 text-lg font-medium">Our Services</h2>
-          <h3 className="text-4xl md:text-5xl font-bold text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
-            What we offer our clients
-          </h3>
-          <p className="text-lg text-muted-foreground leading-relaxed" style={{ fontFamily: 'var(--font-cormorant)' }}>
-            Step into a world where your needs shape our services. Offering bespoke consultations, innovative design & automation, meticulous construction, and strategic project management, we make your journey seamless. Plus, unlock smart investment avenues for unparalleled ROI. With Cosgrove, it's more than a home—it's a lifetime investment.
-          </p>
-        </div>
-
-        {/* Services Grid with Image */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Services List */}
-          <div className="space-y-4">
-            {services.map((service, index) => {
-              const Icon = service.icon
-              return (
-                <div
-                  key={index}
-                  className="flex items-center gap-6 p-6 rounded-lg bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
-                >
-                  <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <h4 className="text-xl font-bold text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
-                    {service.title}
-                  </h4>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Image */}
-          <div className="relative h-[500px] md:h-[600px] rounded-lg overflow-hidden">
-            <Image
-              src="worker.jpg"
-              alt="Construction worker on building site"
-              fill
-              className="object-cover"
-              priority
-            />
-            {/* Yellow accent stripe */}
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500" />
-          </div>
-        </div>
+    <section className="bg-background px-5 py-24 sm:px-8 lg:py-32">
+      <div className="mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-2 lg:items-stretch">
+        <div className="relative min-h-[520px] overflow-hidden rounded-[1.5rem]"><Image src="/worker.jpg" alt="TONMAG construction professional reviewing a site" fill className="object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent" /><p className="absolute bottom-7 left-7 max-w-sm font-serif text-3xl leading-none text-white">Your eyes, expertise, and advocate on the ground.</p></div>
+        <div className="flex flex-col justify-center"><p className="luxury-eyebrow mb-4">Beyond the keys</p><h2 className="font-serif text-5xl leading-none sm:text-6xl">Local care for every stage of ownership.</h2><div className="mt-10 divide-y divide-border border-y border-border">{services.map(({ icon: Icon, title, copy }) => <div key={title} className="grid grid-cols-[48px_1fr] gap-4 py-6"><span className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary"><Icon className="size-5" /></span><div><h3 className="font-serif text-2xl">{title}</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">{copy}</p></div></div>)}</div></div>
       </div>
     </section>
   )

@@ -1,175 +1,50 @@
-"use client";
+"use client"
 
-import { useEffect, useRef } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-
-const projects = [
-  {
-    id: 1,
-    title: "The Nouveau by TONMAG",
-    location: "Maitama",
-    image: "/M1.jpg",
-    slug: "the-nouveau-maitama",
-  },
-  {
-    id: 2,
-    title: "TONMAG Heights",
-    location: "Ikoyi",
-    image: "/M2.jpg",
-    slug: "tonmag-heights-ikoyi",
-  },
-  {
-    id: 3,
-    title: "The Residences",
-    location: "Victoria Island",
-    image: "/M4.jpg",
-    slug: "the-residences-vi",
-  },
-];
+import Link from "next/link"
+import { ArrowRight, Sparkles } from "lucide-react"
+import { PropertyCard } from "@/components/property-card"
+import { usePublicProperties } from "@/lib/use-public-properties"
 
 export function ProjectsShowcase() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          const cards = entry.target.querySelectorAll(".project-card");
-          cards.forEach((card, index) => {
-            setTimeout(() => {
-              card.classList.add("animate-in");
-            }, index * 150);
-          });
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    if (containerRef.current) observer.observe(containerRef.current);
-
-    return () => observer.disconnect();
-  }, []);
-
+  const properties = usePublicProperties()
   return (
-    <section className="py-20 bg-slate-950">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Featured Projects
-          </h2>
-          <p className="text-gray-400 text-lg">
-            Explore our latest luxury developments across Africa
-          </p>
-        </div>
-
-        <div
-          ref={containerRef}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          <style>{`
-            @keyframes scaleUp {
-              from {
-                opacity: 0;
-                transform: scale(0.95);
-              }
-              to {
-                opacity: 1;
-                transform: scale(1);
-              }
-            }
-            .project-card {
-              opacity: 0;
-              transform: scale(0.95);
-            }
-            .project-card.animate-in {
-              animation: scaleUp 0.6s ease-out forwards;
-            }
-          `}</style>
-
-          {projects.map((project) => (
-            <Link
-              key={project.id}
-              href={`/projects/${project.slug}`}
-              className="project-card group"
-            >
-              <div className="relative h-80 rounded-xl overflow-hidden cursor-pointer">
-                <Image
-                  src={project.image || "/M6.jpg"}
-                  alt={project.title}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
-
-                <div className="absolute inset-0 flex flex-col justify-between p-6">
-                  <div />
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <svg
-                        className="w-5 h-5 text-amber-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-gray-300 text-sm">
-                        {project.location}
-                      </span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors">
-                      {project.title}
-                    </h3>
-                    <div className="flex items-center gap-2 text-white group-hover:text-amber-400 transition-colors">
-                      <span className="text-sm font-semibold">
-                        View Project
-                      </span>
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-amber-400 text-slate-900 font-semibold rounded-lg hover:bg-amber-300 transition-colors"
-          >
-            View All Projects
-            <ChevronRight className="w-5 h-5" />
+    <section id="verified-homes" className="bg-background px-5 py-24 sm:px-8 lg:py-32">
+      <div className="mx-auto max-w-[1440px]">
+        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <p className="luxury-eyebrow mb-4">Curated & independently checked</p>
+            <h2 className="font-serif text-5xl leading-[0.95] md:text-7xl">Verified homes, without the guesswork.</h2>
+          </div>
+          <Link href="/search" className="inline-flex min-h-12 items-center gap-2 self-start border-b border-primary text-sm font-bold text-foreground hover:text-primary">
+            View all properties <ArrowRight className="size-4" />
           </Link>
         </div>
 
-        {/* YouTube Video Section */}
-        <div className="mt-20 pt-16 border-t border-gray-800">
-          <h3 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
-            Experience TONMAG in Action
-          </h3>
-          <div className="flex justify-center">
-            <div className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden shadow-2xl">
-              <iframe
-                width="100%"
-                height="100%"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                title="TONMAG Estate Features"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
+        <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
+          {properties.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
+        </div>
+
+        <div className="mt-20 grid overflow-hidden bg-navy text-white lg:grid-cols-[1.1fr_.9fr]">
+          <div className="p-8 sm:p-12 lg:p-16">
+            <span className="mb-7 grid size-12 place-items-center rounded-full border border-white/20 text-[#e4bd79]"><Sparkles /></span>
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-[#e4bd79]">TONMAG intelligence</p>
+            <h3 className="max-w-2xl font-serif text-4xl leading-none sm:text-6xl">What could your property be worth today?</h3>
+            <p className="mt-6 max-w-xl text-base leading-7 text-white/70">Our assisted valuation combines comparable sales, verified title data, and local market signals. Results are shown in naira and your preferred home currency.</p>
+            <Link href="/contact" className="mt-9 inline-flex min-h-12 items-center bg-primary px-6 text-sm font-bold text-white transition hover:bg-[#8d682f]">Get property valuation</Link>
+          </div>
+          <div className="border-t border-white/10 bg-[#102d40] p-8 sm:p-12 lg:border-l lg:border-t-0 lg:p-16">
+            <p className="text-sm font-semibold text-white/60">Illustrative estimate</p>
+            <p className="mt-10 font-serif text-5xl sm:text-6xl">₦242,000,000</p>
+            <p className="mt-2 text-base text-white/65">$151,250 USD · £119,790 GBP</p>
+            <div className="mt-10 h-28 border-b border-l border-white/20" aria-label="Illustrative rising property value chart">
+              <svg viewBox="0 0 440 110" className="h-full w-full" role="img" aria-hidden="true">
+                <path d="M0 93 C70 88 78 71 134 76 S216 54 266 59 S356 22 440 10" fill="none" stroke="#c99b50" strokeWidth="3" />
+              </svg>
             </div>
+            <div className="mt-4 flex justify-between text-xs text-white/45"><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span>2026</span></div>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }

@@ -1,0 +1,317 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // users/{uid}: private PII; owner-readable only. Required fields are id,
+    // name, email, homeMarket, currency, role, and onboardingComplete. Optional
+    // phone, roles, permissions, and accountActive fields are tightly locked.
+    // users/{uid}/workspace/main: owner-scoped customer workspace containing
+    // bounded savedPropertyIds, portfolio, transactions, inspections, documents,
+    // maintenance, messages, and notifications lists. Portfolio and transaction
+    // data are server-managed and immutable from Firebase clients.
+    // staff, leads, properties, estates, bookings, ops_notifications,
+    // website_content, sales_records, activity_logs, system_settings,
+    // migrations, and contact_submissions are private server-managed
+    // collections accessed through verified Admin SDK APIs.
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner(userId) {
+      return isOwner(userId) && request.resource.data.id == request.auth.uid;
+    }
+
+    function uidUnchanged(userId) {
+      return request.resource.data.id == userId &&
+        request.resource.data.id == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function isValidString(value, minLength, maxLength) {
+      return value is string &&
+        value.size() >= minLength &&
+        value.size() <= maxLength;
+    }
+
+    function isValidOptionalString(data, field, maxLength) {
+      return !(field in data) ||
+        (data[field] is string && data[field].size() <= maxLength);
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() <= 320 &&
+        email.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$');
+    }
+
+    function isValidUrl(url) {
+      return url is string && url.size() <= 2000 && url.matches('^https://.*');
+    }
+
+    function isValidList(value, maxSize) {
+      return value is list && value.size() <= maxSize;
+    }
+
+    function accessFieldsUnchanged() {
+      return request.resource.data.role == resource.data.role &&
+        request.resource.data.get('roles', []) == resource.data.get('roles', []) &&
+        request.resource.data.get('permissions', []) == resource.data.get('permissions', []) &&
+        request.resource.data.get('accountActive', true) == resource.data.get('accountActive', true);
+    }
+
+    // ===============================================================
+    // Domain Validators (used on every client create and update)
+    // ===============================================================
+    function isValidUser(data) {
+      return hasRequiredFields(data, [
+          'id', 'name', 'email', 'homeMarket', 'currency', 'role',
+          'onboardingComplete'
+        ]) &&
+        hasOnlyAllowedFields(data, [
+          'id', 'name', 'email', 'phone', 'homeMarket', 'currency', 'role',
+          'roles', 'permissions', 'accountActive', 'onboardingComplete'
+        ]) &&
+        isValidString(data.id, 1, 128) &&
+        isValidString(data.name, 1, 100) &&
+        isValidEmail(data.email) &&
+        isValidOptionalString(data, 'phone', 30) &&
+        isValidString(data.homeMarket, 0, 100) &&
+        data.currency in ['USD', 'GBP', 'CAD', 'EUR'] &&
+        data.role == 'client' &&
+        (!('roles' in data) || (data.roles is list && data.roles.size() == 0)) &&
+        (!('permissions' in data) || (data.permissions is list && data.permissions.size() == 0)) &&
+        (!('accountActive' in data) || data.accountActive == true) &&
+        data.onboardingComplete is bool;
+    }
+
+    function isValidWorkspace(data) {
+      return hasRequiredFields(data, [
+          'savedPropertyIds', 'portfolio', 'transactions', 'inspections',
+          'documents', 'maintenance', 'messages', 'notifications'
+        ]) &&
+        hasOnlyAllowedFields(data, [
+          'savedPropertyIds', 'portfolio', 'transactions', 'inspections',
+          'documents', 'maintenance', 'messages', 'notifications'
+        ]) &&
+        isValidList(data.savedPropertyIds, 100) &&
+        isValidList(data.portfolio, 100) &&
+        isValidList(data.transactions, 200) &&
+        isValidList(data.inspections, 100) &&
+        isValidList(data.documents, 100) &&
+        isValidList(data.maintenance, 100) &&
+        isValidList(data.messages, 500) &&
+        isValidList(data.notifications, 200);
+    }
+
+    function isEmptyWorkspace(data) {
+      return data.savedPropertyIds.size() == 0 &&
+        data.portfolio.size() == 0 &&
+        data.transactions.size() == 0 &&
+        data.inspections.size() == 0 &&
+        data.documents.size() == 0 &&
+        data.maintenance.size() == 0 &&
+        data.messages.size() == 0 &&
+        data.notifications.size() == 0;
+    }
+
+    function isValidInspection(item) {
+      return item is map &&
+        item.keys().hasAll(['id', 'property', 'date', 'time', 'format', 'status', 'notes']) &&
+        item.keys().hasOnly(['id', 'property', 'date', 'time', 'format', 'status', 'notes']) &&
+        isValidString(item.id, 1, 128) &&
+        isValidString(item.property, 1, 200) &&
+        isValidString(item.date, 1, 50) &&
+        isValidString(item.time, 1, 50) &&
+        item.format in ['Virtual', 'In-person', 'Representative'] &&
+        item.status == 'Requested' &&
+        isValidString(item.notes, 0, 2000);
+    }
+
+    function isValidDocument(item) {
+      return item is map &&
+        item.keys().hasAll(['id', 'name', 'category', 'date', 'status', 'size']) &&
+        item.keys().hasOnly(['id', 'name', 'category', 'date', 'status', 'size', 'url']) &&
+        isValidString(item.id, 1, 128) &&
+        isValidString(item.name, 1, 255) &&
+        isValidString(item.category, 1, 100) &&
+        isValidString(item.date, 1, 50) &&
+        item.status == 'Pending review' &&
+        isValidString(item.size, 1, 30) &&
+        (!('url' in item) || isValidUrl(item.url));
+    }
+
+    function isValidMaintenance(item) {
+      return item is map &&
+        item.keys().hasAll(['id', 'property', 'title', 'priority', 'status', 'createdAt']) &&
+        item.keys().hasOnly(['id', 'property', 'title', 'priority', 'status', 'createdAt']) &&
+        isValidString(item.id, 1, 128) &&
+        isValidString(item.property, 1, 200) &&
+        isValidString(item.title, 1, 2000) &&
+        item.priority in ['Routine', 'Urgent'] &&
+        item.status == 'Open' &&
+        isValidString(item.createdAt, 1, 50);
+    }
+
+    function isValidMessage(item) {
+      return item is map &&
+        item.keys().hasAll(['id', 'sender', 'text', 'sentAt']) &&
+        item.keys().hasOnly(['id', 'sender', 'text', 'sentAt']) &&
+        isValidString(item.id, 1, 128) &&
+        item.sender == 'user' &&
+        isValidString(item.text, 1, 4000) &&
+        isValidString(item.sentAt, 1, 50);
+    }
+
+    function isValidNotification(item) {
+      return item is map &&
+        item.keys().hasAll(['id', 'title', 'detail', 'createdAt', 'read']) &&
+        item.keys().hasOnly(['id', 'title', 'detail', 'createdAt', 'read']) &&
+        isValidString(item.id, 1, 128) &&
+        isValidString(item.title, 1, 200) &&
+        isValidString(item.detail, 1, 1000) &&
+        isValidString(item.createdAt, 1, 50) &&
+        item.read is bool;
+    }
+
+    function addsOneAtFront(newList, oldList) {
+      return newList.size() == oldList.size() + 1 &&
+        newList.removeAll([newList[0]]) == oldList;
+    }
+
+    function addsOneAtEnd(newList, oldList) {
+      return newList.size() == oldList.size() + 1 &&
+        newList.removeAll([newList[newList.size() - 1]]) == oldList;
+    }
+
+    function isValidWorkspaceUpdate(data) {
+      let changed = data.diff(resource.data).affectedKeys();
+      let savedAddition = changed.hasOnly(['savedPropertyIds']) &&
+        addsOneAtEnd(data.savedPropertyIds, resource.data.savedPropertyIds) &&
+        isValidString(data.savedPropertyIds[data.savedPropertyIds.size() - 1], 1, 128);
+      let savedRemoval = changed.hasOnly(['savedPropertyIds']) &&
+        data.savedPropertyIds.size() + 1 == resource.data.savedPropertyIds.size() &&
+        data.savedPropertyIds.toSet().difference(resource.data.savedPropertyIds.toSet()).size() == 0;
+      let inspectionChange = changed.hasOnly(['inspections', 'notifications']) &&
+        addsOneAtFront(data.inspections, resource.data.inspections) &&
+        addsOneAtFront(data.notifications, resource.data.notifications) &&
+        isValidInspection(data.inspections[0]) &&
+        isValidNotification(data.notifications[0]);
+      let documentChange = changed.hasOnly(['documents']) &&
+        addsOneAtFront(data.documents, resource.data.documents) &&
+        isValidDocument(data.documents[0]);
+      let maintenanceChange = changed.hasOnly(['maintenance']) &&
+        addsOneAtFront(data.maintenance, resource.data.maintenance) &&
+        isValidMaintenance(data.maintenance[0]);
+      let messageChange = changed.hasOnly(['messages']) &&
+        addsOneAtEnd(data.messages, resource.data.messages) &&
+        isValidMessage(data.messages[data.messages.size() - 1]);
+      return savedAddition || savedRemoval || inspectionChange ||
+        documentChange || maintenanceChange || messageChange;
+    }
+
+    // ===============================================================
+    // Customer-owned paths
+    // ===============================================================
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+        isDocOwner(userId) &&
+        uidUnchanged(userId) &&
+        request.resource.data.email == request.auth.token.email &&
+        isValidUser(request.resource.data);
+
+      allow update: if isOwner(userId) &&
+        uidNotModified() &&
+        request.resource.data.email == resource.data.email &&
+        accessFieldsUnchanged() &&
+        isValidUser(request.resource.data);
+
+      allow delete: if false;
+
+      match /workspace/{documentId} {
+        allow read: if documentId == 'main' && isOwner(userId) &&
+          exists(/databases/$(database)/documents/users/$(userId));
+
+        allow create: if documentId == 'main' && isOwner(userId) &&
+          exists(/databases/$(database)/documents/users/$(userId)) &&
+          isValidWorkspace(request.resource.data) &&
+          isEmptyWorkspace(request.resource.data);
+
+        allow update: if documentId == 'main' && isOwner(userId) &&
+          exists(/databases/$(database)/documents/users/$(userId)) &&
+          isValidWorkspace(request.resource.data) &&
+          request.resource.data.portfolio == resource.data.portfolio &&
+          request.resource.data.transactions == resource.data.transactions &&
+          isValidWorkspaceUpdate(request.resource.data);
+
+        allow delete: if false;
+      }
+    }
+
+    // ===============================================================
+    // Server-only RBAC and operational data
+    // ===============================================================
+    match /staff/{document=**} {
+      allow read, write: if false;
+    }
+    match /leads/{document=**} {
+      allow read, write: if false;
+    }
+    match /properties/{document=**} {
+      allow read, write: if false;
+    }
+    match /estates/{document=**} {
+      allow read, write: if false;
+    }
+    match /bookings/{document=**} {
+      allow read, write: if false;
+    }
+    match /ops_notifications/{document=**} {
+      allow read, write: if false;
+    }
+    match /website_content/{document=**} {
+      allow read, write: if false;
+    }
+    match /sales_records/{document=**} {
+      allow read, write: if false;
+    }
+    match /activity_logs/{document=**} {
+      allow read, write: if false;
+    }
+    match /system_settings/{document=**} {
+      allow read, write: if false;
+    }
+    match /migrations/{document=**} {
+      allow read, write: if false;
+    }
+    match /contact_submissions/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

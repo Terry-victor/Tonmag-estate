@@ -1,5 +1,8 @@
 "use client"
 
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { ArrowLeft, ArrowRight, Building2, Calendar, Car, CheckCircle2, Clock, CreditCard, MapPin, Phone, User } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card } from "@/components/ui/card"
@@ -8,8 +11,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useState } from "react"
-import { Calendar, MapPin, User, Mail, Phone as PhoneIcon, Car, Clock } from "lucide-react"
+import { auth } from "@/lib/firebase"
+import { useSaaS } from "@/components/saas-provider"
+import { usePublicProperties } from "@/lib/use-public-properties"
 
 interface BookingForm {
   fullName: string
@@ -24,349 +28,196 @@ interface BookingForm {
   additionalNotes: string
 }
 
-const properties = [
-  { id: "1", name: "The Nouveau by TONMAG - Maitama" },
-  { id: "2", name: "TONMAG Heights - Ikoyi" },
-  { id: "3", name: "The Residences - Victoria Island" },
-  { id: "4", name: "Acacia - 4BR Terrace" },
-  { id: "5", name: "Oak - 5BR Fully Detached" },
-]
+type BankResult = {
+  reference: string
+  amountNgn: number
+  bankDetails: { bankName: string; accountName: string; accountNumber: string }
+}
 
 export default function BookATourPage() {
+  return <Suspense fallback={<main className="min-h-dvh bg-background"><Header /><div className="mx-auto h-[42rem] max-w-6xl animate-pulse px-4 py-16"><div className="h-full rounded-3xl bg-card" /></div></main>}><BookATourPageContent /></Suspense>
+}
+
+function BookATourPageContent() {
+  const properties = usePublicProperties()
+  const { user, ready } = useSaaS()
+  const router = useRouter()
+  const query = useSearchParams()
   const [formData, setFormData] = useState<BookingForm>({
-    fullName: "",
-    email: "",
-    phone: "",
-    appointmentDate: "",
-    appointmentTime: "",
-    property: "",
-    propertyType: "",
-    agentFee: "standard",
-    transportation: false,
-    additionalNotes: "",
+    fullName: "", email: "", phone: "", appointmentDate: "", appointmentTime: "",
+    property: "", propertyType: "", agentFee: "standard", transportation: false, additionalNotes: "",
   })
-
   const [submitted, setSubmitted] = useState(false)
+  const [step, setStep] = useState(0)
+  const [paymentMethod, setPaymentMethod] = useState<"paystack" | "bank_transfer">("paystack")
+  const [submitting, setSubmitting] = useState(false)
+  const [bookingError, setBookingError] = useState("")
+  const [bankResult, setBankResult] = useState<BankResult | null>(null)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  useEffect(() => {
+    if (!user) return
+    setFormData((current) => ({
+      ...current,
+      fullName: current.fullName || user.name,
+      email: current.email || user.email,
+      phone: current.phone || user.phone || "",
+    }))
+  }, [user])
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  useEffect(() => {
+    const propertyId = query.get("property")
+    if (propertyId && properties.some((property) => property.id === propertyId)) {
+      setFormData((current) => ({ ...current, property: current.property || propertyId }))
+    }
+  }, [properties, query])
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({ ...prev, transportation: checked }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Booking submitted:", formData)
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        appointmentDate: "",
-        appointmentTime: "",
-        property: "",
-        propertyType: "",
-        agentFee: "standard",
-        transportation: false,
-        additionalNotes: "",
+  useEffect(() => {
+    const reference = query.get("reference")
+    const booking = query.get("booking")
+    if (!reference || !booking || !user) return
+    void auth.currentUser?.getIdToken().then(async (token) => {
+      const response = await fetch(`/api/bookings/verify?reference=${encodeURIComponent(reference)}&booking=${encodeURIComponent(booking)}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
-    }, 3000)
+      if (response.ok) {
+        setSubmitted(true)
+        setStep(2)
+        window.history.replaceState(null, "", "/book-a-tour")
+      } else {
+        setBookingError("We could not verify that Paystack payment. Please contact support with your reference.")
+        setStep(2)
+      }
+    })
+  }, [query, user])
+
+  const setField = (name: keyof BookingForm, value: string | boolean) => {
+    setFormData((current) => ({ ...current, [name]: value }))
   }
 
-  return (
-    <main className="min-h-screen">
-      <Header />
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!ready) return
+    if (!user) {
+      router.push(`/sign-in?next=${encodeURIComponent(`/book-a-tour?property=${formData.property}`)}`)
+      return
+    }
+    setSubmitting(true)
+    setBookingError("")
+    try {
+      const token = await auth.currentUser?.getIdToken()
+      const selected = properties.find((property) => property.id === formData.property)
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          clientName: formData.fullName,
+          clientEmail: formData.email,
+          clientPhone: formData.phone,
+          propertyId: formData.property,
+          property: selected?.name || formData.property,
+          scheduledFor: new Date(`${formData.appointmentDate}T${formData.appointmentTime}`).toISOString(),
+          paymentMethod,
+          notes: formData.additionalNotes,
+          transportation: formData.transportation,
+        }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || "Unable to create booking.")
+      if (paymentMethod === "paystack") window.location.assign(result.authorizationUrl)
+      else {
+        setBankResult(result)
+        setSubmitted(true)
+      }
+    } catch (cause) {
+      setBookingError(cause instanceof Error ? cause.message : "Unable to create booking.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
-      {/* Hero Section with Video Background */}
-      <section className="relative py-20 bg-gradient-to-b from-primary/10 to-background overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          className="absolute inset-0 w-full h-full object-cover opacity-15"
-        >
-          <source src="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_30fps.mp4" type="video/mp4" />
-        </video>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center space-y-6 mb-12">
-            <h1 className="text-5xl sm:text-6xl font-bold text-foreground">Book a Tour</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Schedule your private tour of our premium properties and experience luxury living
-            </p>
-          </div>
-        </div>
-      </section>
+  const selectedProperty = properties.find((property) => property.id === formData.property)
+  const canSchedule = Boolean(formData.fullName && formData.email && formData.phone.length >= 7 && formData.appointmentDate && formData.appointmentTime)
 
-      {/* Booking Section */}
-      <section className="py-16 bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Form */}
-            <div className="lg:col-span-2">
-              <Card className="border-border bg-card/50 backdrop-blur-sm">
-                <div className="p-8">
-                  <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
-                    <Calendar className="w-8 h-8 text-accent" />
-                    Schedule Your Tour
-                  </h2>
+  return <main className="min-h-screen overflow-x-clip">
+    <Header />
+    <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background px-4 py-16 sm:px-8 sm:py-20">
+      <div className="relative z-10 mx-auto max-w-7xl text-center">
+        <h1 className="font-serif text-[clamp(3rem,8vw,5rem)] leading-none text-foreground">Book an inspection</h1>
+        <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">Choose a property, select a suitable date and time, then confirm the secure payment method that works for you.</p>
+      </div>
+    </section>
 
-                  {submitted && (
-                    <div className="mb-6 p-4 bg-green-500/10 border border-green-500/50 rounded-lg text-green-600">
-                      <p className="font-semibold">✓ Tour booking submitted successfully!</p>
-                      <p className="text-sm">Our team will contact you shortly to confirm your appointment.</p>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Personal Information */}
-                    <div className="space-y-4 pb-6 border-b border-border">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <User className="w-5 h-5 text-accent" />
-                        Your Information
-                      </h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="fullName">Full Name *</Label>
-                          <Input
-                            id="fullName"
-                            name="fullName"
-                            value={formData.fullName}
-                            onChange={handleInputChange}
-                            placeholder="John Doe"
-                            required
-                            className="mt-2"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="email">Email Address *</Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            placeholder="john@example.com"
-                            required
-                            className="mt-2"
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Label htmlFor="phone">Phone Number *</Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            placeholder="+234 (0) 123 456 7890"
-                            required
-                            className="mt-2"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Appointment Details */}
-                    <div className="space-y-4 pb-6 border-b border-border">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-accent" />
-                        Appointment Details
-                      </h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="appointmentDate">Preferred Date *</Label>
-                          <Input
-                            id="appointmentDate"
-                            name="appointmentDate"
-                            type="date"
-                            value={formData.appointmentDate}
-                            onChange={handleInputChange}
-                            required
-                            className="mt-2"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="appointmentTime">Preferred Time *</Label>
-                          <Input
-                            id="appointmentTime"
-                            name="appointmentTime"
-                            type="time"
-                            value={formData.appointmentTime}
-                            onChange={handleInputChange}
-                            required
-                            className="mt-2"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Property Selection */}
-                    <div className="space-y-4 pb-6 border-b border-border">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-accent" />
-                        Property Selection
-                      </h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="property">Select Property *</Label>
-                          <Select value={formData.property} onValueChange={(value) => handleSelectChange("property", value)}>
-                            <SelectTrigger id="property" className="mt-2">
-                              <SelectValue placeholder="Choose a property" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {properties.map((prop) => (
-                                <SelectItem key={prop.id} value={prop.id}>
-                                  {prop.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="propertyType">Property Type</Label>
-                          <Select value={formData.propertyType} onValueChange={(value) => handleSelectChange("propertyType", value)}>
-                            <SelectTrigger id="propertyType" className="mt-2">
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="apartment">Apartment</SelectItem>
-                              <SelectItem value="terrace">Terrace</SelectItem>
-                              <SelectItem value="detached">Fully Detached</SelectItem>
-                              <SelectItem value="semi-detached">Semi-Detached</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Additional Services */}
-                    <div className="space-y-4 pb-6 border-b border-border">
-                      <h3 className="text-lg font-semibold">Additional Services</h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <Checkbox
-                            id="transportation"
-                            checked={formData.transportation}
-                            onCheckedChange={handleCheckboxChange}
-                          />
-                          <Label htmlFor="transportation" className="flex items-center gap-2 cursor-pointer">
-                            <Car className="w-4 h-4 text-accent" />
-                            Arrange transportation from hotel/airport
-                          </Label>
-                        </div>
-                        <div>
-                          <Label htmlFor="agentFee">Agent Fee Preference</Label>
-                          <Select value={formData.agentFee} onValueChange={(value) => handleSelectChange("agentFee", value)}>
-                            <SelectTrigger id="agentFee" className="mt-2">
-                              <SelectValue placeholder="Select fee option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="standard">Standard Fee</SelectItem>
-                              <SelectItem value="premium">Premium Consultation</SelectItem>
-                              <SelectItem value="vip">VIP Concierge</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Additional Notes */}
-                    <div className="space-y-4">
-                      <Label htmlFor="additionalNotes">Additional Notes or Requirements</Label>
-                      <textarea
-                        id="additionalNotes"
-                        name="additionalNotes"
-                        value={formData.additionalNotes}
-                        onChange={handleInputChange}
-                        placeholder="Share any specific requirements or preferences for your tour..."
-                        rows={4}
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                      />
-                    </div>
-
-                    {/* Submit Button */}
-                    <Button type="submit" size="lg" className="w-full bg-accent hover:bg-accent/90 text-white py-6 text-base">
-                      Book Your Tour
-                    </Button>
-                  </form>
+    <section className="bg-background py-12 sm:py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Card className="border-border bg-card/70 backdrop-blur-sm">
+              <div className="p-5 sm:p-8">
+                <h2 className="mb-7 flex items-center gap-3 font-serif text-3xl sm:text-4xl"><Calendar className="size-7 text-accent" /> Schedule your tour</h2>
+                <div className="mb-8 grid grid-cols-3 gap-2" aria-label="Booking progress">
+                  {["Property", "Date & time", "Confirm & pay"].map((label, index) => <div key={label} className="min-w-0">
+                    <div className={`h-1.5 rounded-full transition-colors ${index <= step ? "bg-accent" : "bg-border"}`} />
+                    <p className={`mt-2 truncate text-[10px] font-bold uppercase tracking-wide sm:text-xs ${index <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</p>
+                  </div>)}
                 </div>
-              </Card>
-            </div>
 
-            {/* Sidebar - Tour Information */}
-            <div className="space-y-6">
-              <Card className="border-border bg-card/50 backdrop-blur-sm p-6">
-                <h3 className="text-xl font-bold mb-4">What to Expect</h3>
-                <ul className="space-y-3 text-sm text-muted-foreground">
-                  <li className="flex gap-3">
-                    <span className="text-accent font-bold">•</span>
-                    <span>Personalized tour of your selected property</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-accent font-bold">•</span>
-                    <span>Professional agent guidance and consultation</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-accent font-bold">•</span>
-                    <span>Information on financing and payment plans</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-accent font-bold">•</span>
-                    <span>Refreshments and comfortable meeting space</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="text-accent font-bold">•</span>
-                    <span>Flexible scheduling to suit your convenience</span>
-                  </li>
-                </ul>
-              </Card>
+                {submitted ? <SuccessPanel bankResult={bankResult} /> : <form onSubmit={handleSubmit} className="space-y-6">
+                  {step === 0 && <div className="space-y-5">
+                    <h3 className="flex items-center gap-2 text-lg font-semibold"><MapPin className="size-5 text-accent" /> Select a property</h3>
+                    <div><Label htmlFor="property">Property *</Label><Select value={formData.property} onValueChange={(value) => setField("property", value)}><SelectTrigger id="property" className="mt-2 min-h-12"><SelectValue placeholder="Choose a property" /></SelectTrigger><SelectContent>{properties.map((property) => <SelectItem key={property.id} value={property.id}>{property.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div><Label htmlFor="propertyType">Preferred property type</Label><Select value={formData.propertyType} onValueChange={(value) => setField("propertyType", value)}><SelectTrigger id="propertyType" className="mt-2 min-h-12"><SelectValue placeholder="Optional" /></SelectTrigger><SelectContent><SelectItem value="apartment">Apartment</SelectItem><SelectItem value="terrace">Terrace</SelectItem><SelectItem value="detached">Fully detached</SelectItem><SelectItem value="semi-detached">Semi-detached</SelectItem></SelectContent></Select></div>
+                    <Button type="button" size="lg" className="w-full" disabled={!formData.property} onClick={() => setStep(1)}>Continue to date and time <ArrowRight className="size-4" /></Button>
+                  </div>}
 
-              <Card className="border-border bg-gradient-to-br from-accent/10 to-accent/5 p-6">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <PhoneIcon className="w-5 h-5 text-accent" />
-                  Need Help?
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Our team is ready to assist you with any questions about our properties or the booking process.
-                </p>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <p className="font-semibold text-foreground">Call Us</p>
-                    <p className="text-accent">+234 (0) 123 456 7890</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">Email Us</p>
-                    <p className="text-accent">tours@tonmag.com</p>
-                  </div>
-                </div>
-              </Card>
+                  {step === 1 && <div className="space-y-6">
+                    <div className="space-y-4"><h3 className="flex items-center gap-2 text-lg font-semibold"><User className="size-5 text-accent" /> Your information</h3><div className="grid gap-4 md:grid-cols-2">
+                      <div><Label htmlFor="fullName">Full name *</Label><Input id="fullName" value={formData.fullName} onChange={(event) => setField("fullName", event.target.value)} required className="mt-2 min-h-12" /></div>
+                      <div><Label htmlFor="email">Email address *</Label><Input id="email" type="email" value={formData.email} onChange={(event) => setField("email", event.target.value)} readOnly={Boolean(user?.email)} required className="mt-2 min-h-12" /></div>
+                      <div className="md:col-span-2"><Label htmlFor="phone">Phone number *</Label><Input id="phone" value={formData.phone} onChange={(event) => setField("phone", event.target.value)} required className="mt-2 min-h-12" /></div>
+                    </div></div>
+                    <div className="space-y-4 border-t border-border pt-5"><h3 className="flex items-center gap-2 text-lg font-semibold"><Clock className="size-5 text-accent" /> Appointment details</h3><div className="grid gap-4 md:grid-cols-2">
+                      <div><Label htmlFor="appointmentDate">Preferred date *</Label><Input id="appointmentDate" type="date" min={new Date().toISOString().slice(0, 10)} value={formData.appointmentDate} onChange={(event) => setField("appointmentDate", event.target.value)} required className="mt-2 min-h-12" /></div>
+                      <div><Label htmlFor="appointmentTime">Preferred time *</Label><Input id="appointmentTime" type="time" value={formData.appointmentTime} onChange={(event) => setField("appointmentTime", event.target.value)} required className="mt-2 min-h-12" /></div>
+                    </div></div>
+                    <WizardButtons back={() => setStep(0)} next={() => setStep(2)} nextDisabled={!canSchedule} nextLabel="Review and pay" />
+                  </div>}
 
-              <Card className="border-border bg-card/50 backdrop-blur-sm p-6">
-                <h3 className="text-lg font-bold mb-4">Tour Duration</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Standard tours typically last 60-90 minutes, including:
-                </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• Property walkthrough</li>
-                  <li>• Amenities demonstration</li>
-                  <li>• Investment discussion</li>
-                  <li>• Q&A session</li>
-                </ul>
-              </Card>
-            </div>
+                  {step === 2 && <div className="space-y-6">
+                    <div className="rounded-2xl bg-muted/60 p-5 text-sm"><p className="font-bold">{selectedProperty?.name}</p><p className="mt-1 text-muted-foreground">{formData.appointmentDate} at {formData.appointmentTime} · {formData.fullName}</p></div>
+                    <div className="space-y-4 border-b border-border pb-5"><h3 className="font-semibold">Additional services</h3>
+                      <div className="flex items-start gap-3"><Checkbox id="transportation" checked={formData.transportation} onCheckedChange={(checked) => setField("transportation", Boolean(checked))} /><Label htmlFor="transportation" className="flex min-h-6 cursor-pointer items-center gap-2"><Car className="size-4 text-accent" /> Arrange transportation from hotel/airport</Label></div>
+                      <div><Label htmlFor="agentFee">Consultation preference</Label><Select value={formData.agentFee} onValueChange={(value) => setField("agentFee", value)}><SelectTrigger id="agentFee" className="mt-2 min-h-12"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="standard">Standard</SelectItem><SelectItem value="premium">Premium consultation</SelectItem><SelectItem value="vip">VIP concierge</SelectItem></SelectContent></Select></div>
+                      <div><Label htmlFor="additionalNotes">Additional notes</Label><textarea id="additionalNotes" value={formData.additionalNotes} onChange={(event) => setField("additionalNotes", event.target.value)} rows={4} className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50" /></div>
+                    </div>
+                    <fieldset className="space-y-3"><legend className="mb-3 font-semibold">Payment method</legend><PaymentOption active={paymentMethod === "paystack"} onClick={() => setPaymentMethod("paystack")} icon={<CreditCard className="size-5" />} title="Paystack" detail="Pay securely by card or supported Paystack methods." /><PaymentOption active={paymentMethod === "bank_transfer"} onClick={() => setPaymentMethod("bank_transfer")} icon={<Building2 className="size-5" />} title="Bank transfer" detail="Receive account details and a unique reference. Booking stays pending until verified." /></fieldset>
+                    {bookingError && <p role="alert" className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">{bookingError}</p>}
+                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><Button type="button" variant="outline" onClick={() => setStep(1)}><ArrowLeft className="size-4" /> Back</Button><Button type="submit" disabled={submitting}>{submitting ? "Preparing booking…" : paymentMethod === "paystack" ? "Continue to Paystack" : "Get bank transfer details"}</Button></div>
+                  </div>}
+                </form>}
+              </div>
+            </Card>
           </div>
-        </div>
-      </section>
 
-      <Footer />
-    </main>
-  )
+          <aside className="space-y-6">
+            <Card className="border-border bg-card/70 p-6"><h3 className="text-xl font-bold">What to expect</h3><ul className="mt-4 space-y-3 text-sm text-muted-foreground">{["A guided walkthrough of your selected property", "Professional agent guidance and consultation", "Financing and payment-plan information", "Flexible scheduling and local orientation"].map((item) => <li key={item} className="flex gap-3"><span className="font-bold text-accent">•</span><span>{item}</span></li>)}</ul></Card>
+            <Card className="border-border bg-gradient-to-br from-accent/10 to-accent/5 p-6"><h3 className="flex items-center gap-2 text-xl font-bold"><Phone className="size-5 text-accent" /> Need help?</h3><p className="mt-4 text-sm text-muted-foreground">Our team can help with properties or the booking process.</p><div className="mt-4 space-y-3 text-sm"><div><p className="font-semibold">Call us</p><p className="text-accent">+234 (0) 123 456 7890</p></div><div><p className="font-semibold">Email us</p><p className="break-all text-accent">tours@tonmag.com</p></div></div></Card>
+            <Card className="border-border bg-card/70 p-6"><h3 className="text-lg font-bold">Tour duration</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">Allow 60–90 minutes for the walkthrough, amenities, investment discussion, and questions.</p></Card>
+          </aside>
+        </div>
+      </div>
+    </section>
+    <Footer />
+  </main>
+}
+
+function WizardButtons({ back, next, nextDisabled, nextLabel }: { back: () => void; next: () => void; nextDisabled: boolean; nextLabel: string }) {
+  return <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><Button type="button" variant="outline" onClick={back}><ArrowLeft className="size-4" /> Back</Button><Button type="button" disabled={nextDisabled} onClick={next}>{nextLabel} <ArrowRight className="size-4" /></Button></div>
+}
+
+function PaymentOption({ active, onClick, icon, title, detail }: { active: boolean; onClick: () => void; icon: React.ReactNode; title: string; detail: string }) {
+  return <button type="button" aria-pressed={active} onClick={onClick} className={`flex min-h-16 w-full items-start gap-4 rounded-xl border p-4 text-left transition ${active ? "border-accent bg-accent/5" : "border-border hover:border-accent/40"}`}><span className="mt-0.5 text-accent">{icon}</span><span><strong className="block">{title}</strong><span className="text-sm leading-6 text-muted-foreground">{detail}</span></span></button>
+}
+
+function SuccessPanel({ bankResult }: { bankResult: BankResult | null }) {
+  return <div className="rounded-2xl border border-green-500/40 bg-green-500/10 p-5 text-green-800"><div className="flex items-center gap-3 font-semibold"><CheckCircle2 className="size-5" /> Booking received</div><p className="mt-2 text-sm">{bankResult ? "Your bank-transfer booking is awaiting verification. Use the exact reference below." : "Your Paystack payment was verified and the inspection is confirmed."}</p>{bankResult && <div className="mt-5 space-y-2 rounded-xl bg-background p-4 text-sm text-foreground"><p><strong>Bank:</strong> {bankResult.bankDetails.bankName}</p><p><strong>Account:</strong> {bankResult.bankDetails.accountName}</p><p><strong>Account number:</strong> {bankResult.bankDetails.accountNumber}</p><p><strong>Amount:</strong> {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(bankResult.amountNgn)}</p><p className="break-all rounded-lg bg-accent/10 p-3 font-mono font-bold text-accent">Reference: {bankResult.reference}</p><p className="text-muted-foreground">Include this reference in the transfer narration. Operations will verify payment before confirming the inspection.</p></div>}</div>
 }

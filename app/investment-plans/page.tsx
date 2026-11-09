@@ -8,6 +8,7 @@ import { TrendingUp, Shield, Zap, Award, DollarSign, Clock } from "lucide-react"
 import Image from "next/image"
 import { useState, useRef } from "react"
 import { CurvedHeader } from "@/components/curved-header"
+import { InvestmentRoadmap } from "@/components/investment-roadmap"
 
 export default function InvestmentPlansPage() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
@@ -21,7 +22,7 @@ export default function InvestmentPlansPage() {
       duration: "3 years",
       icon: TrendingUp,
       color: "from-blue-500 to-cyan-500",
-      badgeImage: "/badge-starter-plan.jpg",
+      badgeImage: "/modern-luxury-apartment-building-exterior.jpg",
       features: ["Guaranteed returns", "Professional management", "Quarterly reports", "Flexible withdrawal"],
     },
     {
@@ -31,7 +32,7 @@ export default function InvestmentPlansPage() {
       duration: "5 years",
       icon: Award,
       color: "from-amber-500 to-orange-500",
-      badgeImage: "/badge-premium-plan.jpg",
+      badgeImage: "/luxury-residential-complex-ikoyi.jpg",
       features: ["Higher returns", "Priority support", "Monthly reports", "Property visits", "Tax benefits"],
       highlighted: true,
     },
@@ -42,7 +43,7 @@ export default function InvestmentPlansPage() {
       duration: "7 years",
       icon: Shield,
       color: "from-purple-500 to-pink-500",
-      badgeImage: "/badge-elite-plan.jpg",
+      badgeImage: "/luxurious-villa-with-modern-architectural-design.png",
       features: [
         "Maximum returns",
         "Dedicated manager",
@@ -59,7 +60,7 @@ export default function InvestmentPlansPage() {
       duration: "10 years",
       icon: Zap,
       color: "from-emerald-500 to-teal-500",
-      badgeImage: "/badge-luxury-plan.jpg",
+      badgeImage: "/premium-residential-tower-victoria-island.jpg",
       features: ["Ultra-premium returns", "Exclusive access", "24/7 concierge", "Property ownership options"],
     },
     {
@@ -110,14 +111,7 @@ export default function InvestmentPlansPage() {
 
       {/* The TONMAG Way Section with Video Background */}
       <section className="py-16 bg-background relative overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
-        >
-          <source src="oport estate_1.mp4" type="video/mp4" />
-        </video>
+        <div className="absolute inset-0 bg-[url('/NICE.JPG')] bg-cover bg-center opacity-10" aria-hidden="true" />
 
         {/* Investment Plans */}
         <section className="py-16 sm:py-20 md:py-24 bg-background">
@@ -142,12 +136,12 @@ export default function InvestmentPlansPage() {
                   return (
                     <div
                       key={index}
-                      className={`flex-shrink-0 w-96 transform transition-all duration-500 hover:scale-105 ${
+                      className={`w-[min(88vw,24rem)] flex-shrink-0 transform transition-all duration-500 hover:-translate-y-2 ${
                         plan.highlighted ? "md:scale-105" : ""
                       }`}
                     >
                       <Card
-                        className={`overflow-hidden h-full backdrop-blur-sm border-2 transition-all duration-300 ${
+                        className={`h-full overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 ${
                           plan.highlighted
                             ? "border-accent bg-gradient-to-br from-accent/10 to-accent/5 shadow-2xl"
                             : "border-border hover:border-accent/50 bg-card/50"
@@ -257,6 +251,7 @@ export default function InvestmentPlansPage() {
           </div>
         </section>
       </section>
+      <InvestmentRoadmap />
       {/* FAQ Section */}
       <section className="py-16 sm:py-20 md:py-24 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

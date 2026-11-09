@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useReducedMotion } from "framer-motion"
 
 interface HouseType {
   id: string
@@ -58,14 +59,16 @@ const houseTypes: HouseType[] = [
 
 export function CarouselHouseTypes() {
   const [current, setCurrent] = useState(0)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
+    if (reduceMotion) return
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % houseTypes.length)
     }, 6000)
 
     return () => clearInterval(timer)
-  }, [])
+  }, [reduceMotion])
 
   const handleMouseEnter = (index: number) => {
     setCurrent(index)
@@ -74,14 +77,15 @@ export function CarouselHouseTypes() {
   return (
     <div className="w-full py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Video Background */}
-      <video
+      {!reduceMotion && <video
         autoPlay
         muted
         loop
+        playsInline
         className="absolute inset-0 w-full h-full object-cover opacity-15"
       >
         <source src="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_30fps.mp4" type="video/mp4" />
-      </video>
+      </video>}
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Desktop Carousel */}
@@ -99,11 +103,11 @@ export function CarouselHouseTypes() {
                   onMouseEnter={() => handleMouseEnter(idx)}
                   className={`shrink-0 transition-all duration-500 cursor-pointer ${
                     idx === current
-                      ? "w-[700px] opacity-100 scale-100"
-                      : "w-[200px] opacity-50 scale-90"
+                      ? "w-[min(70vw,700px)] opacity-100 scale-100"
+                      : "w-[min(22vw,200px)] opacity-50 scale-90"
                   }`}
                 >
-                  <div className="relative group rounded-3xl overflow-hidden h-[650px] shadow-2xl">
+                  <div className="relative group rounded-3xl overflow-hidden h-[clamp(30rem,64vw,40.625rem)] shadow-2xl">
                     <div className="absolute inset-0" style={{ background: card.image }} />
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
                     <div className="absolute inset-0 flex flex-col justify-end p-8 text-white">
@@ -126,7 +130,7 @@ export function CarouselHouseTypes() {
         {/* Mobile Carousel */}
         <div className="md:hidden">
           <div className="relative">
-            <div className="rounded-3xl overflow-hidden h-[500px] shadow-2xl">
+            <div className="rounded-3xl overflow-hidden h-[min(75dvh,31.25rem)] shadow-2xl">
               <div className="absolute inset-0" style={{ background: houseTypes[current].image }} />
               <div className="absolute inset-0 bg-black/40" />
               <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">

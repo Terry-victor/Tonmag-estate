@@ -1,138 +1,16 @@
-"use client"
-
 import Link from "next/link"
-import { Facebook, Instagram, Linkedin, Youtube, MessageCircle } from "lucide-react"
+import { ArrowUpRight, Instagram, Linkedin, MessageCircle } from "lucide-react"
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
-
   return (
-    <footer className="bg-primary text-primary-foreground">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-                <span className="text-accent-foreground font-bold">T</span>
-              </div>
-              <span className="font-bold text-lg">TONMAG</span>
-            </div>
-            <p className="text-primary-foreground/80 text-sm">
-              Crafting luxury living spaces across Nigeria with innovation and excellence.
-            </p>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="#about" className="hover:text-accent transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="#projects" className="hover:text-accent transition-colors">
-                  Projects
-                </Link>
-              </li>
-              <li>
-                <Link href="#features" className="hover:text-accent transition-colors">
-                  Features
-                </Link>
-              </li>
-              <li>
-                <Link href="#contact" className="hover:text-accent transition-colors">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="#" className="hover:text-accent transition-colors">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-accent transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-accent transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-accent transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Social Media & WhatsApp */}
-          <div>
-            <h3 className="font-semibold mb-4">Connect With Us</h3>
-            <div className="flex gap-4 flex-wrap">
-              <a
-                href="https://wa.me/2348012345678"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-lg flex items-center justify-center transition-colors"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
+    <footer className="bg-[#061721] px-5 text-white sm:px-8">
+      <div className="mx-auto max-w-[1440px] py-16 lg:py-20">
+        <div className="grid gap-12 border-b border-white/12 pb-14 lg:grid-cols-[1.2fr_.8fr_.8fr]">
+          <div><div className="flex items-center gap-3"><span className="grid size-11 place-items-center border border-[#c99b50] font-serif text-2xl">T</span><span className="font-extrabold tracking-[.16em]">TONMAG</span></div><h2 className="mt-8 max-w-xl font-serif text-4xl leading-none sm:text-5xl">A trusted Nigerian home, wherever life takes you.</h2><Link href="/contact" className="mt-8 inline-flex min-h-12 items-center gap-2 bg-primary px-6 text-sm font-extrabold text-white">Talk to an agent <ArrowUpRight className="size-4" /></Link></div>
+          <div><h3 className="text-xs font-bold uppercase tracking-[.18em] text-[#e4bd79]">Explore</h3><nav className="mt-5 grid gap-3 text-sm text-white/68"><Link href="/search">Find a property</Link><Link href="/projects">Collections</Link><Link href="/investment-plans">Investment plans</Link><Link href="/credibility-legal">Verification</Link><Link href="/dashboard">My portfolio</Link></nav></div>
+          <div><h3 className="text-xs font-bold uppercase tracking-[.18em] text-[#e4bd79]">Get in touch</h3><div className="mt-5 space-y-2 text-sm leading-6 text-white/68"><p>Abuja · Lagos · Diaspora desk</p><p>hello@tonmaghomes.com</p><p>+234 815 191 6956</p></div><div className="mt-6 flex gap-2"><a href="https://wa.me/2348151916956" className="grid size-12 place-items-center rounded-full border border-white/20 hover:border-[#c99b50]" aria-label="TONMAG on WhatsApp"><MessageCircle /></a><a href="#" className="grid size-12 place-items-center rounded-full border border-white/20 hover:border-[#c99b50]" aria-label="TONMAG on Instagram"><Instagram /></a><a href="#" className="grid size-12 place-items-center rounded-full border border-white/20 hover:border-[#c99b50]" aria-label="TONMAG on LinkedIn"><Linkedin /></a></div></div>
         </div>
-
-        {/* Bottom Bar */}
-        <div className="border-t border-primary-foreground/20 pt-8 flex flex-col sm:flex-row items-center justify-between text-sm text-primary-foreground/80">
-          <p>&copy; {currentYear} TONMAG Africa. All rights reserved.</p>
-          <div className="flex gap-6 mt-4 sm:mt-0">
-            <Link href="#" className="hover:text-accent transition-colors">
-              Privacy
-            </Link>
-            <Link href="#" className="hover:text-accent transition-colors">
-              Terms
-            </Link>
-            <Link href="#" className="hover:text-accent transition-colors">
-              Cookies
-            </Link>
-          </div>
-        </div>
+        <div className="flex flex-col gap-4 pt-7 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between"><p>© {new Date().getFullYear()} TONMAG Homes. All rights reserved.</p><div className="flex gap-6"><Link href="#">Privacy</Link><Link href="#">Terms</Link><Link href="#">Accessibility</Link></div></div>
       </div>
     </footer>
   )

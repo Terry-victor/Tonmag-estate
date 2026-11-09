@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useReducedMotion } from "framer-motion"
 
 interface CountUpProps {
   end: number
@@ -13,8 +14,10 @@ export function CountUp({ end, duration = 2000, suffix = "", prefix = "" }: Coun
   const [count, setCount] = useState(0)
   const elementRef = useRef<HTMLDivElement>(null)
   const hasStarted = useRef(false)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
+    if (reduceMotion) { setCount(end); return }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasStarted.current) {
@@ -43,12 +46,12 @@ export function CountUp({ end, duration = 2000, suffix = "", prefix = "" }: Coun
     }
 
     return () => observer.disconnect()
-  }, [end, duration])
+  }, [end, duration, reduceMotion])
 
   return (
     <div ref={elementRef} className="text-4xl font-bold text-accent">
       {prefix}
-      {count}
+      {count.toLocaleString("en-NG")}
       {suffix}
     </div>
   )
