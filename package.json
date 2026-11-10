@@ -2,6 +2,7 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
     "build": "node scripts/next-cli.mjs build",
     "dev": "node scripts/next-cli.mjs dev",
@@ -46,8 +47,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
-    "dataconnect-admin-generated": "link:../../../AppData/Local/pnpm/global/5/node_modules/src/dataconnect-admin-generated",
-    "dataconnect-generated": "link:../../../AppData/Local/pnpm/global/5/node_modules/src/dataconnect-generated",
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
     "firebase": "latest",
