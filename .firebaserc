@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "tonmag-estate-5fcf5"
-  }
+    "default": "tonmag-estate-prod"
+  },
+  "targets": {},
+  "etags": {}
 }

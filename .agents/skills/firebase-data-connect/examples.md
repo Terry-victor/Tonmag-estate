@@ -533,7 +533,7 @@ mutation UpdateMyReviewText($movieId: UUID!, $newText: String!) @auth(level: USE
     sql: """
       UPDATE review
       SET text = $2
-      WHERE movie_id = $1 AND user_uid = $3
+      WHERE movie_id = $1 AND  = $3
       RETURNING movie_id, user_uid, rating, text
     """,
     params: [$movieId, $newText, {_expr: "auth.uid"}]

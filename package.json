@@ -10,6 +10,7 @@
     "rbac:migrate:dry": "node scripts/migrate-rbac.mjs",
     "rbac:migrate": "node scripts/migrate-rbac.mjs --apply",
     "staff:create-dev-super-admin": "node scripts/create-dev-super-admin.mjs",
+    "staff:bootstrap-production-super-admin": "node scripts/bootstrap-production-super-admin.mjs",
     "test": "node --test tests/*.test.ts",
     "test:rbac": "node --test tests/rbac.test.ts",
     "start": "node scripts/next-cli.mjs start"
