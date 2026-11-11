@@ -8,10 +8,36 @@
         "supportEmail": "victorterry25@gmail.com",
         "authorizedRedirectUris": [
           "https://tonmag-estate-prod.firebaseapp.com/__/auth/handler",
+          "https://auth.tonmagestate.com/__/auth/handler",
+          "https://www.tonmagestate.com/__/auth/handler",
           "http://localhost"
         ]
       }
     }
+  },
+  "hosting": {
+    "site": "tonmag-estate-prod",
+    "public": "firebase-auth-hosting",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          }
+        ]
+      }
+    ]
   },
   "firestore": {
     "rules": "firestore.rules"

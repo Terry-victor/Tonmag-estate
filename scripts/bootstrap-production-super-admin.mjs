@@ -34,6 +34,7 @@ function readEnv(filePath) {
 const env = { ...readEnv(path.resolve(".env.local")), ...process.env }
 const projectId = String(env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "").trim()
 const uid = String(env.PRODUCTION_SUPER_ADMIN_UID || "").trim()
+const verifyOnly = process.argv.includes("--verify-only")
 
 if (!projectId || env.CONFIRM_FIREBASE_PROJECT_ID !== projectId) {
   throw new Error("Set CONFIRM_FIREBASE_PROJECT_ID to the exact target Firebase project ID.")
@@ -60,6 +61,30 @@ const email = authUser.email.trim().toLowerCase()
 const name = String(authUser.displayName || email.split("@")[0] || "TONMAG Super Administrator").trim()
 const staffReference = database.doc(`staff/${uid}`)
 const existingStaff = await staffReference.get()
+if (verifyOnly) {
+  const staff = existingStaff.data() || {}
+  const staffId = typeof staff.staffId === "string" ? staff.staffId : ""
+  const matches = staffId
+    ? await database.collection("staff").where("staffId", "==", staffId).get()
+    : null
+  process.stdout.write(`PROJECT_ID=${projectId}\n`)
+  process.stdout.write(`AUTH_USER_EXISTS=true\n`)
+  process.stdout.write(`AUTH_UID=${authUser.uid}\n`)
+  process.stdout.write(`AUTH_EMAIL=${email}\n`)
+  process.stdout.write(`AUTH_DISABLED=${authUser.disabled}\n`)
+  process.stdout.write(`AUTH_EMAIL_VERIFIED=${authUser.emailVerified}\n`)
+  process.stdout.write(`AUTH_PROVIDERS=${JSON.stringify(authUser.providerData.map((provider) => provider.providerId))}\n`)
+  process.stdout.write(`AUTH_LAST_SIGN_IN=${authUser.metadata.lastSignInTime || ""}\n`)
+  process.stdout.write(`STAFF_DOCUMENT_EXISTS=${existingStaff.exists}\n`)
+  process.stdout.write(`STAFF_DOCUMENT_ID=${existingStaff.id}\n`)
+  process.stdout.write(`STAFF_UID=${typeof staff.uid === "string" ? staff.uid : ""}\n`)
+  process.stdout.write(`STAFF_ID=${staffId}\n`)
+  process.stdout.write(`STAFF_EMAIL=${typeof staff.email === "string" ? staff.email : ""}\n`)
+  process.stdout.write(`STAFF_ACTIVE=${staff.active === true}\n`)
+  process.stdout.write(`STAFF_ROLES=${JSON.stringify(Array.isArray(staff.roles) ? staff.roles : [])}\n`)
+  process.stdout.write(`STAFF_ID_MATCH_COUNT=${matches?.size || 0}\n`)
+  process.exit(0)
+}
 let staffId = existingStaff.data()?.staffId
 
 if (typeof staffId !== "string" || !/^id_[1-9]\d*$/.test(staffId)) {

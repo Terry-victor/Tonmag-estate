@@ -8,9 +8,9 @@ function createAdminApp(): App | null {
   try {
     const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
     if (raw) {
-      const value = raw.trim().startsWith("{") ? raw : Buffer.from(raw, "base64").toString("utf8")
-      const serviceAccount = JSON.parse(value)
-      if (serviceAccount.private_key) serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n")
+      const serviceAccount = JSON.parse(
+        Buffer.from(raw, "base64").toString("utf8"),
+      )
       return initializeApp({ credential: cert(serviceAccount) })
     }
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || process.env.K_SERVICE) {
@@ -22,16 +22,23 @@ function createAdminApp(): App | null {
   return null
 }
 
-export const firebaseAdminApp = createAdminApp()
+let firebaseAdminApp: App | null | undefined
+
+function getFirebaseAdminApp() {
+  if (firebaseAdminApp === undefined) firebaseAdminApp = createAdminApp()
+  return firebaseAdminApp
+}
 
 export function getAdminAuth() {
-  if (!firebaseAdminApp) throw new Error("SERVER_AUTH_NOT_CONFIGURED")
-  return getAuth(firebaseAdminApp)
+  const app = getFirebaseAdminApp()
+  if (!app) throw new Error("SERVER_AUTH_NOT_CONFIGURED")
+  return getAuth(app)
 }
 
 export function getAdminDatabase() {
-  if (!firebaseAdminApp) throw new Error("SERVER_AUTH_NOT_CONFIGURED")
-  return getFirestore(firebaseAdminApp)
+  const app = getFirebaseAdminApp()
+  if (!app) throw new Error("SERVER_AUTH_NOT_CONFIGURED")
+  return getFirestore(app)
 }
 
 export async function requireFirebaseUser(request: Request, checkRevoked = false) {
