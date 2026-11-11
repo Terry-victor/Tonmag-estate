@@ -28,7 +28,7 @@ type SaaSContextValue = {
   demoMode: boolean
   signUp: (input: SignUpInput) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
-  signInStaff: (staffId: string, password: string, role: AppRole) => Promise<void>
+  signInStaff: (email: string, password: string, role: AppRole) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
@@ -145,17 +145,17 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
     } catch (error) { throw new Error(friendlyFirebaseError(error)) }
   }
 
-  const signInStaff = async (staffId: string, password: string, role: AppRole) => {
+  const signInStaff = async (email: string, password: string, role: AppRole) => {
     if (!isFirebaseConfigured) throw new Error("Staff sign-in requires Firebase to be configured.")
     try {
       const lookup = await fetch("/api/auth/staff-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staffId, password, role }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password, role }),
         cache: "no-store",
       })
       const lookupResult = await lookup.json().catch(() => null) as { customToken?: string; error?: string } | null
-      if (!lookup.ok || !lookupResult?.customToken) throw new Error(lookupResult?.error || "The employee ID, role or password is invalid.")
+      if (!lookup.ok || !lookupResult?.customToken) throw new Error(lookupResult?.error || "The email, role or password is invalid.")
 
       const credential = await signInWithCustomToken(auth, lookupResult.customToken)
       const token = await credential.user.getIdToken()

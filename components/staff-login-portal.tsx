@@ -18,7 +18,7 @@ export function StaffLoginPortal() {
   const router = useRouter()
   const { signInStaff, user, ready } = useSaaS()
   const [selected, setSelected] = useState<(typeof roles)[number] | null>(null)
-  const [staffId, setStaffId] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -29,7 +29,7 @@ export function StaffLoginPortal() {
     if (!selected) return
     setError(""); setLoading(true)
     try {
-      await signInStaff(staffId, password, selected.role)
+      await signInStaff(email, password, selected.role)
       router.replace("/staff/dashboard")
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Unable to sign in.")
@@ -47,7 +47,7 @@ export function StaffLoginPortal() {
         <span className="mx-auto grid size-16 place-items-center rounded-2xl border border-primary/15 bg-primary/10 text-primary"><ShieldCheck className="size-8" /></span>
         <p className="mt-6 text-xs font-extrabold uppercase tracking-[.22em] text-primary">Secure employee access</p>
         <h1 className="mt-2 font-serif text-5xl leading-none text-navy sm:text-6xl">TONMAG Staff Workspace</h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground">Choose your assigned workspace, then sign in with your unique employee ID and password.</p>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground">Choose your assigned workspace, then sign in with your Firebase staff email and password.</p>
       </header>
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4" aria-label="Staff roles">
         {roles.map((item) => { const Icon = item.icon; return <button key={item.role} type="button" onClick={() => { setSelected(item); setError("") }} className="group min-h-80 rounded-[1.75rem] border border-black/5 bg-white p-7 text-left shadow-[0_20px_60px_rgba(15,45,40,.07)] transition hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(15,45,40,.13)]">
@@ -65,12 +65,12 @@ export function StaffLoginPortal() {
       <div className="w-full max-w-md rounded-[1.75rem] bg-card p-6 shadow-2xl sm:p-8">
         <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-primary">{selected.title}</p><h2 id="staff-sign-in-title" className="mt-2 font-serif text-4xl">Employee sign in</h2></div><button type="button" onClick={() => setSelected(null)} className="grid size-11 place-items-center rounded-full border border-border" aria-label="Close"><X className="size-5" /></button></div>
         <form onSubmit={submit} className="mt-7 space-y-4">
-          <label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider">Employee ID</span><input required pattern="id_[1-9][0-9]*" placeholder="id_1" autoComplete="username" value={staffId} onChange={(event) => setStaffId(event.target.value.toLowerCase())} className="min-h-13 w-full rounded-xl border border-border bg-background px-4 text-sm" /></label>
+          <label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider">Staff email</span><input required type="email" placeholder="name@tonmag.com" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value.toLowerCase())} className="min-h-13 w-full rounded-xl border border-border bg-background px-4 text-sm" /></label>
           <label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wider">Password</span><span className="relative block"><input required minLength={6} type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} className="min-h-13 w-full rounded-xl border border-border bg-background px-4 pr-12 text-sm" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-0 grid size-13 place-items-center" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button></span></label>
           {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
           <button disabled={loading} className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-extrabold text-white disabled:opacity-60">{loading ? "Verifying access…" : "Sign in securely"}<ArrowRight className="size-4" /></button>
         </form>
-        <div className="mt-5 flex justify-between gap-4 text-xs"><Link href="/forgot-password" className="font-bold text-primary">Forgot password?</Link><span className="text-muted-foreground">Use your assigned ID</span></div>
+        <div className="mt-5 flex justify-between gap-4 text-xs"><Link href="/forgot-password" className="font-bold text-primary">Forgot password?</Link><span className="text-muted-foreground">Use your Firebase staff email</span></div>
       </div>
     </div>}
   </main>
