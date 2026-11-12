@@ -150,10 +150,10 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
       const credential = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password)
       const token = await credential.user.getIdToken()
       const session = await fetch("/api/auth/session", { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" })
-      const result = await session.json().catch(() => null) as { user?: SaaSUser } | null
+      const result = await session.json().catch(() => null) as { user?: SaaSUser; error?: string } | null
       if (!session.ok || !result?.user || result.user.role !== "admin" || !result.user.roles.includes(role)) {
         await firebaseSignOut(auth)
-        throw new Error("This account is not authorized for the selected staff workspace.")
+        throw new Error(result?.error || "This account is not authorized for the selected staff workspace.")
       }
       setUser(normalizeStoredUser(result.user))
     } catch (error) {
