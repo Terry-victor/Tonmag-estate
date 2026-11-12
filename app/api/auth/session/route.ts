@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import { apiError } from "@/lib/api-response"
-import { getAdminDatabase, getStaffAccess, requireFirebaseUser } from "@/lib/firebase-admin"
 
 export async function GET(request: Request) {
   try {
+    if (!request.headers.get("authorization")?.startsWith("Bearer ")) throw new Error("UNAUTHORIZED")
+    const { getAdminDatabase, getStaffAccess, requireFirebaseUser } = await import("@/lib/firebase-admin")
     const token = await requireFirebaseUser(request, true)
     const [profileSnapshot, access] = await Promise.all([
       getAdminDatabase().doc(`users/${token.uid}`).get(),
