@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server"
 import { isUnauthorizedFirebaseAuthError } from "@/lib/firebase-auth-errors"
 
+function safeDiagnostic(error: unknown): string {
+  if (!(error instanceof Error)) return "non-error"
+  const name = error.name.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 40) || "Error"
+  const message = error.message
+    .split(/\r?\n/, 1)[0]
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/-----BEGIN[\s\S]*$/i, "[redacted]")
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[redacted-email]")
+    .replace(/ya29\.[A-Za-z0-9._-]+/g, "[redacted-token]")
+    .slice(0, 180)
+  return `${name}: ${message || "no-message"}`
+}
+
 export function apiError(error: unknown) {
   const message = error instanceof Error ? error.message : "UNKNOWN_ERROR"
   const code = error && typeof error === "object" && "code" in error ? String(error.code) : ""
@@ -25,7 +38,7 @@ export function apiError(error: unknown) {
   if (message === "SELF_ROLE_CHANGE_FORBIDDEN") return NextResponse.json({ error: "You cannot change your own roles or account status." }, { status: 403 })
   if (message === "LAST_SUPER_ADMIN") return NextResponse.json({ error: "The final active Super Administrator cannot be removed or deactivated." }, { status: 409 })
   if (message === "INVALID_INPUT") return NextResponse.json({ error: "The submitted data is invalid." }, { status: 400 })
-  const reference = code || "unclassified"
+  const reference = code || safeDiagnostic(error)
   console.error("Admin API error", { reference, error })
   return NextResponse.json({ error: `The request could not be completed (reference: ${reference}).` }, { status: 500 })
 }
