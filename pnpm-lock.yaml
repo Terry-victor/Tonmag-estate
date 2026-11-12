@@ -111,7 +111,7 @@ importers:
         specifier: 8.5.1
         version: 8.5.1(react@19.2.0)
       firebase:
-        specifier: latest
+        specifier: 13.2.0
         version: 13.2.0(@types/react@19.3.0)(next@16.0.10(@babel/core@7.29.13)(@opentelemetry/api@1.9.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       firebase-admin:
         specifier: ^14.5.0
@@ -5423,10 +5423,9 @@ snapshots:
 
   '@opentelemetry/api-logs@0.220.0':
     dependencies:
-      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/api': 1.10.0
 
-  '@opentelemetry/api@1.10.0':
-    optional: true
+  '@opentelemetry/api@1.10.0': {}
 
   '@opentelemetry/api@1.9.1': {}
 

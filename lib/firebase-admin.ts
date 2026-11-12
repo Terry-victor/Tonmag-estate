@@ -2,22 +2,31 @@ import { applicationDefault, cert, getApps, initializeApp, type App } from "fire
 import { getAuth, type DecodedIdToken } from "firebase-admin/auth"
 import { FieldValue, getFirestore } from "firebase-admin/firestore"
 import { hasAnyPermission, hasPermission, normalizeRoles, permissionsForRoles, type AppRole, type Permission } from "@/lib/rbac"
+import { parseFirebaseServiceAccount } from "@/lib/firebase-admin-credentials"
 
 function createAdminApp(): App | null {
   if (getApps().length) return getApps()[0]
   try {
     const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
     if (raw) {
-      const serviceAccount = JSON.parse(
-        Buffer.from(raw, "base64").toString("utf8"),
+      const serviceAccount = parseFirebaseServiceAccount(
+        raw,
+        process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
       )
-      return initializeApp({ credential: cert(serviceAccount) })
+      return initializeApp({
+        credential: cert({
+          projectId: serviceAccount.project_id,
+          clientEmail: serviceAccount.client_email,
+          privateKey: serviceAccount.private_key,
+        }),
+      })
     }
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || process.env.K_SERVICE) {
       return initializeApp({ credential: applicationDefault() })
     }
   } catch (error) {
-    console.error("Firebase Admin initialization failed", error)
+    const message = error instanceof Error ? error.message : "UNKNOWN_ERROR"
+    console.error(`Firebase Admin initialization failed: ${message}`)
   }
   return null
 }

@@ -5,7 +5,6 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendPasswordResetEmail,
-  signInWithCustomToken,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
@@ -148,16 +147,7 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
   const signInStaff = async (email: string, password: string, role: AppRole) => {
     if (!isFirebaseConfigured) throw new Error("Staff sign-in requires Firebase to be configured.")
     try {
-      const lookup = await fetch("/api/auth/staff-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), password, role }),
-        cache: "no-store",
-      })
-      const lookupResult = await lookup.json().catch(() => null) as { customToken?: string; error?: string } | null
-      if (!lookup.ok || !lookupResult?.customToken) throw new Error(lookupResult?.error || "The email, role or password is invalid.")
-
-      const credential = await signInWithCustomToken(auth, lookupResult.customToken)
+      const credential = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password)
       const token = await credential.user.getIdToken()
       const session = await fetch("/api/auth/session", { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" })
       const result = await session.json().catch(() => null) as { user?: SaaSUser } | null
